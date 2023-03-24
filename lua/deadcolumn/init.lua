@@ -1,25 +1,119 @@
 local utils = require('deadcolumn.utils')
 
+---Default options
+---@class ColorColumnOptions
 local opts = {
   threshold = 0.75,
   scope = 'line',
-  modes = {
-    'i',
-    'ic',
-    'ix',
-    'R',
-    'Rc',
-    'Rx',
-    'Rv',
-    'Rvc',
-    'Rvx',
-  },
+  modes = { 'i', 'ic', 'ix', 'R', 'Rc', 'Rx', 'Rv', 'Rvc', 'Rvx' },
   warning = {
     alpha = 0.4,
-    colorcode = nil,
+    colorcode = '#FF0000',
     hlgroup = { 'Error', 'background' },
   },
 }
+
+-- Store shared data
+local store = {
+  previous_cc = '', ---@type string
+  colorcol_bg = '', ---@type string
+}
+
+-- Functions to get the line length for different scopes
+local scope_len_fn = {
+  line = function()
+    return vim.fn.strdisplaywidth(vim.api.nvim_get_current_line())
+  end,
+  buffer = function()
+    local range = 1000
+    local current_linenr = vim.fn.line('.')
+    local lines = vim.api.nvim_buf_get_lines(
+      0,
+      math.max(0, current_linenr - 1 - range),
+      current_linenr + range,
+      false
+    )
+    return math.max(unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
+  end,
+  visible = function()
+    local lines = vim.api.nvim_buf_get_lines(
+      0,
+      vim.fn.line('w0') - 1,
+      vim.fn.line('w$'),
+      false
+    )
+    return math.max(unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
+  end,
+}
+
+---Resolve the colorcolumn value
+---@param cc string|nil
+---@return integer|nil cc_number smallest integer >= 0 or nil
+local function resolve_cc(cc)
+  if not cc or cc == '' then
+    return nil
+  end
+  local cc_tbl = vim.split(cc, ',')
+  local cc_min = nil
+  for _, cc_str in ipairs(cc_tbl) do
+    local cc_number = nil
+    if vim.startswith(cc_str, '+') then
+      cc_number = vim.bo.tw > 0 and vim.bo.tw + tonumber(cc_str:sub(2))
+    elseif vim.startswith(cc_str, '-') then
+      cc_number = vim.bo.tw > 0 and vim.bo.tw - tonumber(cc_str:sub(2))
+    else
+      cc_number = tonumber(cc_str)
+    end
+    if
+      type(cc_number) == 'number'
+      and cc_number > 0
+      and (not cc_min or cc_number < cc_min)
+    then
+      cc_min = cc_number
+    end
+  end
+  return cc_min
+end
+
+---Show the colorcolumn
+local function show_colorcolumn()
+  local cc = resolve_cc(vim.w.cc)
+  if not cc then
+    return
+  end
+
+  local len = scope_len_fn[opts.scope]()
+  local thresh = opts.threshold
+  if 0 < opts.threshold and opts.threshold < 1 then
+    thresh = math.floor(opts.threshold * cc)
+  end
+  if len < thresh or not vim.tbl_contains(opts.modes, vim.fn.mode()) then
+    vim.opt.cc = ''
+    return
+  end
+
+  vim.wo.cc = vim.w.cc
+
+  -- Show blended color when len < cc
+  local normal_bg = utils.get_hl('Normal', 'background') or '000000'
+  if len < cc then
+    vim.api.nvim_set_hl(0, 'ColorColumn', {
+      bg = '#' .. utils.blend(
+        store.colorcol_bg,
+        normal_bg,
+        (len - thresh) / (cc - thresh)
+      ),
+    })
+  else -- Show error color when len >= cc
+    local warning_color = utils.get_hl(
+      opts.warning.hlgroup[1],
+      opts.warning.hlgroup[2]
+    ) or opts.warning.colorcode
+    vim.api.nvim_set_hl(0, 'ColorColumn', {
+      bg = '#' .. utils.blend(warning_color, normal_bg, opts.warning.alpha),
+    })
+  end
+end
 
 -- colorcolumn is a window-local option, with some special rules:
 -- 1. When a window is created, it inherits the value of the previous window or
@@ -47,7 +141,7 @@ local function create_autocmds()
   vim.api.nvim_create_autocmd({ 'WinLeave' }, {
     group = 'AutoColorColumn',
     callback = function()
-      vim.g.prevwincc = vim.w.cc
+      store.previous_cc = vim.w.cc
       vim.wo.cc = ''
     end,
   })
@@ -56,7 +150,7 @@ local function create_autocmds()
   vim.api.nvim_create_autocmd({ 'WinNew' }, {
     group = 'AutoColorColumn',
     callback = function()
-      vim.w.cc = vim.g.prevwincc or vim.g.cc
+      vim.w.cc = store.previous_cc or vim.g.cc
     end,
   })
 
@@ -100,7 +194,7 @@ local function create_autocmds()
   vim.api.nvim_create_autocmd({ 'BufWinEnter', 'ColorScheme' }, {
     group = 'AutoColorColumn',
     callback = function()
-      vim.g.colorcolumn_bg = utils.get_hl('ColorColumn', 'background')
+      store.colorcol_bg = utils.get_hl('ColorColumn', 'background') or '000000'
     end,
   })
 
@@ -116,89 +210,18 @@ local function create_autocmds()
     'WinEnter',
   }, {
     group = 'AutoColorColumn',
-    callback = function()
-      local cc = tonumber(vim.w.cc)
-
-      if not cc then
-        return
-      end
-
-      local length = 0
-      if opts.scope == 'line' then
-        length = vim.fn.strdisplaywidth(vim.api.nvim_get_current_line())
-      elseif opts.scope == 'buffer' then
-        -- local lines = vim.api.nvim_buf_get_lines(0, vim.fn.line('w0') - 1,
-        --   vim.fn.line('w$'), false)
-        local range = 1000
-        local current_linenr = vim.fn.line('.')
-        local lines = vim.api.nvim_buf_get_lines(
-          0,
-          math.max(0, current_linenr - 1 - range),
-          current_linenr + range,
-          false
-        )
-        length = math.max(unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
-      elseif opts.scope == 'visible' then
-        local lines = vim.api.nvim_buf_get_lines(
-          0,
-          vim.fn.line('w0') - 1,
-          vim.fn.line('w$'),
-          false
-        )
-        length = math.max(unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
-      end
-
-      local thresh
-      if 0 < opts.threshold and opts.threshold < 1 then
-        thresh = math.floor(opts.threshold * cc)
-      else
-        thresh = opts.threshold
-      end
-
-      if
-        length < thresh
-        or not vim.tbl_contains(opts.modes, vim.fn.mode())
-      then
-        vim.opt.cc = ''
-        return
-      end
-
-      vim.wo.cc = vim.w.cc
-
-      -- Show blended color when length < cc
-      if length < cc then
-        vim.api.nvim_set_hl(0, 'ColorColumn', {
-          bg = '#' .. utils.blend(
-            vim.g.colorcolumn_bg,
-            utils.get_hl('Normal', 'background'),
-            (length - thresh) / (cc - thresh)
-          ),
-        })
-      else -- Show error color when length >= cc
-        local warning_color = opts.warning.colorcode
-          or utils.get_hl(opts.warning.hlgroup[1], opts.warning.hlgroup[2])
-        vim.print(warning_color)
-        vim.api.nvim_set_hl(0, 'ColorColumn', {
-          bg = '#' .. utils.blend(
-            warning_color,
-            utils.get_hl('Normal', 'background'),
-            opts.warning.alpha
-          ),
-        })
-      end
-    end,
+    callback = show_colorcolumn,
   })
 end
 
 ---Setup function
----@param user_opts table|nil
+---@param user_opts ColorColumnOptions
 local function setup(user_opts)
   opts = vim.tbl_deep_extend('force', opts, user_opts or {})
   if opts.warning.colorcode then
     opts.warning.colorcode = opts.warning.colorcode:gsub('#', '', 1):upper()
   end
   create_autocmds()
-  vim.g.loaded_deadcolumn = true
 end
 
 return {

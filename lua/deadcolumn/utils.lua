@@ -110,11 +110,15 @@ local function blend(hex1, hex2, alpha)
 end
 
 ---Get background color in hex
----@param hlgroup string
+---@param hlgroup_name string name of the highlight group
 ---@param field string 'foreground' or 'background'
----@return string
-local function get_hl(hlgroup, field)
-  return dec2hex(vim.api.nvim_get_hl_by_name(hlgroup, true)[field] or 0)
+---@return string|nil
+local function get_hl(hlgroup_name, field)
+  local has_hlgroup, hlgroup = pcall(vim.api.nvim_get_hl_by_name, hlgroup_name, true)
+  if has_hlgroup and hlgroup[field] then
+    return dec2hex(hlgroup[field])
+  end
+  return nil
 end
 
 return {

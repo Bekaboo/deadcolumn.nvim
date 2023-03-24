@@ -44,6 +44,9 @@ local scope_len_fn = {
     )
     return math.max(unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
   end,
+  cursor = function()
+    return vim.api.nvim_win_get_cursor(0)[2] + 1
+  end
 }
 
 ---Resolve the colorcolumn value
@@ -209,6 +212,11 @@ local function create_autocmds()
     'BufWinEnter',
     'WinEnter',
   }, {
+    group = 'AutoColorColumn',
+    callback = show_colorcolumn
+  })
+  vim.api.nvim_create_autocmd({ 'OptionSet' }, {
+    pattern = { 'colorcolumn', 'textwidth' },
     group = 'AutoColorColumn',
     callback = show_colorcolumn,
   })

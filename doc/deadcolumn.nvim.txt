@@ -1,0 +1,174 @@
+*deadcolumn.nvim.txt*       A neovim plugin that shows colorcolumn dynamically
+*deadcolumn.nvim*
+
+		      deadcolumn.nvim    by Bekaboo
+
+
+==============================================================================
+CONTENTS                                            *deadcolumn.nvim-contents*
+
+1.Introduction                                  |deadcolumn.nvim-introduction|
+2.Options                                            |deadcolumn.nvim-options|
+3.FAQ                                                    |deadcolumn.nvim-faq|
+
+
+==============================================================================
+INTRODUCTION                                    *deadcolumn.nvim-introduction*
+
+Deadcolumn is a neovim plugin to assist users in maintaining a specific column
+width in their code. This plugin operates by gradually displaying the
+'colorcolumn' as the user approaches it. It is useful for people who wish to
+keep their code aligned within a specific column range.
+
+With this plugin, you can:
+
+1. Gradually display the 'colorcolumn' as you approaches it
+2. Display the column in warning color if current line exceeds 'colorcolumn'
+3. Show the colored column only when you need it
+
+
+==============================================================================
+OPTIONS                                              *deadcolumn.nvim-options*
+
+The following is the default options, you can pass a table to
+|deadcolumn.setup| to override the default options.
+
+You are not required to call the setup function if you don’t want to change
+the default options, the plugin should work out of the box.
+
+>lua
+    local opts = {
+	threshold = 0.75,
+	scope = 'line',
+	modes = { 'i', 'ic', 'ix', 'R', 'Rc', 'Rx', 'Rv', 'Rvc', 'Rvx' },
+	warning = {
+	    alpha = 0.4,
+	    colorcode = 'FF0000',
+	    hlgroup = {
+		'Error',
+		'background',
+	    },
+	},
+    }
+<
+
+deadcolumn.setup({opts})                                  *deadcolumn.setup()*
+    Setup function to call to configure the defaults.
+
+    Usage: `require('deadcolumn.setup({opts}))`
+
+    Valid keys for {opts}
+
+                                                   *deadcolumn.opts.threshold*
+    `threshold` number (default 0.75)
+
+	The threshold for showing the colored column.
+
+	If `threshold` is a number between 0 and 1, it will be treated as a
+	relative threshold, the colored column will be shown when the current
+	line is longer than `threshold` times the 'colorcolumn'.
+
+	If `threshold` is a number greater than 1, it will be treated as a
+	fixed threshold, the colored column will be shown when the current
+	line is longer than `threshold` characters.
+
+                                                       *deadcolumn.opts.scope*
+    `scope` string (default "line")
+
+	The scope for showing the colored column.
+
+	Valid settings:
+
+	1. "line"
+
+	    The colored column will be shown when the current line is longer
+	    than the 'colorcolumn'.
+
+	2. "buffer"
+
+	    The colored column will be shown when any line in the current
+	    buffer is longer than the 'colorcolumn'.
+
+	3. "visible"
+
+	    The colored column will be shown when any line in the visible
+	    area is longer than the 'colorcolumn'.
+
+	4. "cursor"
+
+	    The colored column will be shown when the cursor column is greater
+	    than the 'colorcolumn'.
+
+                                                       *deadcolumn.opts.modes*
+    `modes` table
+	(default: { "i", "ic", "ix", "R", "Rc", "Rx", "Rv", "Rvc", "Rvx" })
+
+	In which modes to show the colored column.
+
+                                                     *deadcolumn.opts.warning*
+    `warning` table
+
+	Warning color options.
+
+	Valid fields:
+
+	1. `alpha` number (default: 0.4)       *deadcolumn.opts.warning.alpha*
+
+	    Alpha value for the warning color, blended with the background
+	    color.
+
+	2. `colorcode` string              *deadcolumn.opts.warning.colorcode*
+	     (default: "#FF0000")
+
+	    Color code for the warning color.
+
+	3. `hlgroup` table                   *deadcolumn.opts.warning.hlgroup*
+	     (default: { "Error", "background" })
+
+	    The highlight group for the warning color.
+	    If the highlight group is not found, `colorcode` will be used.
+
+
+==============================================================================
+FAQ                                                      *deadcolumn.nvim-faq*
+
+
+1. Why can’t I see the colored column?
+
+    Please make sure you have set 'colorcolumn' to a value greater than 0.
+    If you set 'colorcolumn' to a relative value (e.g. -10), make sure
+    `textwidth` is set to a value greater than 0.
+
+
+2. How to set different colorcolumn for different filetypes?
+
+    Deadcolumn does not set 'colorcolumn' for you, it only reads and uses the
+    value of 'colorcolumn' of the current buffer to show the colored column
+    when needed.
+
+    It leaves to you to set 'colorcolumn' for different filetypes, under
+    different conditions, which is more flexible compared to setting
+    'colorcolumn' in the plugin setup function.
+
+    There are mainly two ways to set 'colorcolumn' for different filetypes:
+
+    1. Using |autocmd|
+
+	Youcan use `:autocmd` to set 'colorcolumn' for different filetypes.
+	For example, you can set 'colorcolumn' to 80 for markdown files:
+>vim
+	autocmd FileType markdown setlocal colorcolumn=80
+<
+    2. Using |ftplugin|
+
+	You can also use the ftplugin directory to set 'colorcolumn' for
+	different filetypes.
+
+	For example, you can create a file named `markdown.lua` in the
+	`ftplugin` directory under your config directory, and set
+	'colorcolumn' to 80 for markdown files:
+>lua
+	vim.bo.colorcolumn = '80'
+<
+
+vim:tw=78:ts=8:noet:ft=help:norl:

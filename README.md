@@ -112,17 +112,17 @@ require('deadcolumn').setup(opts) -- Call the setup function
 - `scope` (string): The scope for showing the colored column, there are several
     possible values:
 
-    - `'line'`: the colored column will be shown when the
-        current line is longer than the `colorcolumn`.
+    - `'line'`: colored column will be shown based on the length of the current
+      line.
 
-    - `'buffer'`: the colored column will be shown when
-        any line in the current buffer is longer than the `colorcolumn`.
+    - `'buffer'`: colored column will be shown based on the length of the longest
+      line in current buffer (up to 1000 lines around current line).
 
-    - `'visible'`:, the colored column will be shown when
-        any line in the visible area is longer than the `colorcolumn`.
+    - `'visible'`: colored column will be shown based on the length of the
+      longest line in the visible area.
 
-    - `'cursor'`: the colored column will be shown when the cursor column is
-        greater than the `colorcolumn`.
+    - `'cursor'`: colored column will be shown based on current cursor
+      position.
 
 - `modes` (table): In which modes to show the colored column.
 

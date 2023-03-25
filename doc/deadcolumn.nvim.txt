@@ -81,23 +81,22 @@ deadcolumn.setup({opts})                                  *deadcolumn.setup()*
 
 	1. "line"
 
-	    The colored column will be shown when the current line is longer
-	    than the 'colorcolumn'.
+	    Colored column will be shown based on the length of the current
+	    line.
 
 	2. "buffer"
 
-	    The colored column will be shown when any line in the current
-	    buffer is longer than the 'colorcolumn'.
+	    Colored column will be shown based on the length of the longest
+	    line in current buffer (up to 1000 lines around current line).
 
 	3. "visible"
 
-	    The colored column will be shown when any line in the visible
-	    area is longer than the 'colorcolumn'.
+	    Colored column will be shown based on the length of the longest
+	    line in the visible area.
 
 	4. "cursor"
 
-	    The colored column will be shown when the cursor column is greater
-	    than the 'colorcolumn'.
+	    Colored column will be shown based on current cursor position.
 
                                                        *deadcolumn.opts.modes*
     `modes` table

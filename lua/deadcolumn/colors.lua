@@ -44,7 +44,7 @@ local function hex2dec(hex)
   local dec = 0
 
   while digit <= #hex do
-    dec = dec + todec[string.sub(hex, digit, digit)] * 16 ^ (#hex - digit)
+    dec = dec + todec[string.sub(hex, digit, digit)] * 16^(#hex - digit)
     digit = digit + 1
   end
 
@@ -85,8 +85,8 @@ end
 ---@return string
 local function rgb2hex(rgb)
   return dec2hex(math.floor(rgb[1]))
-    .. dec2hex(math.floor(rgb[2]))
-    .. dec2hex(math.floor(rgb[3]))
+      .. dec2hex(math.floor(rgb[2]))
+      .. dec2hex(math.floor(rgb[3]))
 end
 
 ---Blend two hex colors
@@ -110,15 +110,18 @@ local function blend(hex1, hex2, alpha)
 end
 
 ---Get background color in hex
----@param hlgroup_name string name of the highlight group
+---@param hlgroup_name string
 ---@param field string 'foreground' or 'background'
----@return string|nil
-local function get_hl(hlgroup_name, field)
-  local has_hlgroup, hlgroup = pcall(vim.api.nvim_get_hl_by_name, hlgroup_name, true)
+---@param fallback string|nil fallback color in hex, default to '000000'
+---@return string hex color
+local function get_hl(hlgroup_name, field, fallback)
+  fallback = fallback or '000000'
+  local has_hlgroup, hlgroup =
+    pcall(vim.api.nvim_get_hl_by_name, hlgroup_name, true)
   if has_hlgroup and hlgroup[field] then
     return dec2hex(hlgroup[field])
   end
-  return nil
+  return fallback
 end
 
 return {

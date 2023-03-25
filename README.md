@@ -7,7 +7,7 @@
 </p>
 
 <p align='center'>
-    <img src=https://user-images.githubusercontent.com/76579810/227669246-1cb53d93-1a8b-4edd-949e-9e6da6fa698b.gif width=80%>
+    <img src=https://user-images.githubusercontent.com/76579810/227669246-1cb53d93-1a8b-4edd-949e-9e6da6fa698b.gif width=90%>
 </p>
 
 Deadcolumn is a Neovim plugin designed to users in maintaining a
@@ -21,33 +21,34 @@ people who wish to keep their code aligned within a specific column range.
 - [Installation](#installation)
 - [Options](#options)
 - [FAQ](#faq)
+- [Similar Projects](#similar-projects)
 
 ## Features
 
 - Gradually display the `colorcolumn` as the user approaches it:
 
-    <img src=https://user-images.githubusercontent.com/76579810/227671471-4b92fd6b-6006-4be6-ad40-7e598a2e6cec.gif width=50%>
+    <img src=https://user-images.githubusercontent.com/76579810/227671471-4b92fd6b-6006-4be6-ad40-7e598a2e6cec.gif width=70%>
 
 - Display the column in warning color if current line exceeds `colorcolumn`:
 
-    <img src=https://user-images.githubusercontent.com/76579810/227671655-2718d41c-a336-4f3d-af46-91646de5d98b.gif width=50%>
+    <img src=https://user-images.githubusercontent.com/76579810/227671655-2718d41c-a336-4f3d-af46-91646de5d98b.gif width=70%>
 
 - Handle multiple values of `colorcolumn` properly:
 
     - `:set colorcolumn=-10,25,+2 textwidth=20`:
 
-    <img src=https://user-images.githubusercontent.com/76579810/227671926-2824a013-0690-4548-8817-c4aedc77a076.gif width=50%>
+    <img src=https://user-images.githubusercontent.com/76579810/227671926-2824a013-0690-4548-8817-c4aedc77a076.gif width=70%>
 
 - Show the colored column only when you need it
 
     - Show the colored column in insert mode only:
 
-        <img src=https://user-images.githubusercontent.com/76579810/227672206-eebdb9fd-04d9-4aa1-9cc8-bf2f61e4ccfb.gif width=50%>
+        <img src=https://user-images.githubusercontent.com/76579810/227672206-eebdb9fd-04d9-4aa1-9cc8-bf2f61e4ccfb.gif width=70%>
 
     - Show the colored column only when current line is longer than the
         `colorcolumn`:
 
-        <img src=https://user-images.githubusercontent.com/76579810/227672529-8e11425e-3c8f-4f19-99f5-f453a0476dbf.gif width=50%>
+        <img src=https://user-images.githubusercontent.com/76579810/227672529-8e11425e-3c8f-4f19-99f5-f453a0476dbf.gif width=70%>
 
 
     - and more...
@@ -181,3 +182,9 @@ require('deadcolumn').setup(opts) -- Call the setup function
         ```lua
         vim.bo.colorcolumn = '80'
         ```
+
+## Similar Projects
+
+- [smartcolumn.nvim](https://github.com/m4xshen/smartcolumn.nvim)
+- [virt-column.nvim](https://github.com/lukas-reineke/virt-column.nvim)
+- [virtcolumn.nvim](https://github.com/xiyaowong/virtcolumn.nvim)

@@ -193,8 +193,8 @@ local function create_autocmds()
     end,
   })
 
-  -- Save Colorcolum background color
-  vim.api.nvim_create_autocmd({ 'BufWinEnter', 'ColorScheme' }, {
+  -- Update Colorcolum background color on color scheme change
+  vim.api.nvim_create_autocmd({ 'ColorScheme' }, {
     group = 'AutoColorColumn',
     callback = function()
       store.colorcol_bg = utils.get_hl('ColorColumn', 'background') or '000000'
@@ -225,10 +225,13 @@ end
 ---Setup function
 ---@param user_opts ColorColumnOptions
 local function setup(user_opts)
+  -- Process opts
   opts = vim.tbl_deep_extend('force', opts, user_opts or {})
   if opts.warning.colorcode then
     opts.warning.colorcode = opts.warning.colorcode:gsub('#', '', 1):upper()
   end
+  -- Record colorcolumn background color
+  store.colorcol_bg = utils.get_hl('ColorColumn', 'background') or '000000'
   create_autocmds()
 end
 

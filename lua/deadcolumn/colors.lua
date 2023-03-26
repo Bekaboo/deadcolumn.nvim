@@ -55,18 +55,13 @@ end
 ---@param int integer
 ---@return string hex
 local function dec2hex(int)
-  vim.print('========== dec2hex ==========')
-  vim.print('dec: ' .. vim.inspect(int))
   local hex = ''
 
   while int > 0 do
-    vim.print('idx: ' .. vim.inspect(int % 16))
-    vim.print('hex: ' .. vim.inspect(hex))
     hex = tohex[int % 16] .. hex
     int = math.floor(int / 16)
   end
 
-  vim.print('-----------------------------')
   return hex
 end
 
@@ -89,8 +84,6 @@ end
 ---@param rgb integer[]
 ---@return string
 local function rgb2hex(rgb)
-  vim.print('========== rgb2hex ==========')
-  vim.print('rgb: ' .. vim.inspect(rgb))
   local hex = {
     dec2hex(math.floor(rgb[1])),
     dec2hex(math.floor(rgb[2])),
@@ -101,7 +94,6 @@ local function rgb2hex(rgb)
     string.rep('0', 2 - #hex[2]) .. hex[2],
     string.rep('0', 2 - #hex[3]) .. hex[3],
   }
-  vim.print('-----------------------------')
   return table.concat(hex, '')
 end
 
@@ -111,8 +103,6 @@ end
 ---@param alpha number between 0~1, weight of the first color
 ---@return string hex_blended blended hex color
 local function blend(hex1, hex2, alpha)
-  vim.print('========== blend ==========')
-  vim.print('blending ' .. hex1 .. ' and ' .. hex2 .. ' with alpha ' .. alpha)
   local rgb1 = hex2rgb(hex1)
   local rgb2 = hex2rgb(hex2)
 
@@ -121,12 +111,8 @@ local function blend(hex1, hex2, alpha)
     alpha * rgb1[2] + (1 - alpha) * rgb2[2],
     alpha * rgb1[3] + (1 - alpha) * rgb2[3],
   }
-  vim.print('blended rgb: ' .. vim.inspect(rgb_blended))
 
-  local hex_blended = rgb2hex(rgb_blended)
-  vim.print('blended color: ' .. hex_blended)
-  vim.print('-----------------------------')
-  return hex_blended
+  return rgb2hex(rgb_blended)
 end
 
 ---Get background color in hex

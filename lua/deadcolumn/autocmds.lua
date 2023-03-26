@@ -81,7 +81,7 @@ local function redraw_colorcolumn()
 
   local len = scope_len_fn[configs.user.scope]()
   local thresh = configs.user.threshold
-  if 0 < configs.user.threshold and configs.user.threshold < 1 then
+  if 0 < configs.user.threshold and configs.user.threshold <= 1 then
     thresh = math.floor(configs.user.threshold * cc)
   end
   if

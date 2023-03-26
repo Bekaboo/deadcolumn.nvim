@@ -267,54 +267,6 @@ local function make_autocmds()
     group = 'AutoColorColumn',
     callback = redraw_colorcolumn,
   })
-
-  -- Fix cursor position issues
-  vim.on_key(function(char)
-    local mode = vim.fn.mode()
-    vim.w._last_key = char
-    if vim.startswith(mode, 'n') and char == '$' then
-      vim.w._eol = true
-    end
-  end, vim.api.nvim_create_namespace('AutoColorColumn'))
-  vim.api.nvim_create_autocmd({ 'BufWinEnter', 'InsertEnter' }, {
-    group = 'AutoColorColumn',
-    callback = function()
-      -- Record last cursor row position and largest column position
-      vim.w._cursor = vim.api.nvim_win_get_cursor(0)
-    end,
-  })
-  vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-    group = 'AutoColorColumn',
-    callback = function(tbl)
-      if not vim.w._cursor then
-        return
-      end
-      local cursor = vim.api.nvim_win_get_cursor(0)
-      -- Same row, update _cursor, set _eol and return
-      if cursor[1] == vim.w._cursor[1] then
-        vim.w._cursor = cursor
-        vim.w._eol = vim.w._last_key == '$' and true or false
-        return
-      end
-      -- Different row, if in normal mode and _eol is set, move cursor to EOL,
-      -- update _cursor and return
-      if tbl.event == 'CursorMoved' and vim.w._eol then
-        vim.cmd('silent! normal! $')
-        vim.w._cursor = cursor
-        return
-      end
-      -- Different row, in normal mode but _eol is not set, or in
-      -- insert/replace mode, should update cursor column to furthest column
-      -- position and udate _cursor
-      if cursor[2] < vim.w._cursor[2] then
-        local target = { cursor[1], vim.w._cursor[2] }
-        vim.api.nvim_win_set_cursor(0, target)
-        vim.w._cursor = target
-      else
-        vim.w._cursor = cursor
-      end
-    end,
-  })
 end
 
 return {

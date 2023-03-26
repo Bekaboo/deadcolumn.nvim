@@ -175,7 +175,7 @@ require('deadcolumn').setup(opts) -- Call the setup function
         You can also use the `ftplugin` directory to set `colorcolumn` for
         different filetypes.
 
-        For example, you can create a file named `markdown.lua` in the
+        For example, you can create a file named `markdown.vim` in the
         `ftplugin` directory under your config directory, and set `colorcolumn`
         to 80 for `markdown` files:
 

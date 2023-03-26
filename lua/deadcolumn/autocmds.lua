@@ -82,7 +82,7 @@ local function redraw_colorcolumn()
   local len = scope_len_fn[configs.user.scope]()
   local thresh = configs.user.blending.threshold
   if 0 < thresh and thresh <= 1 then
-    thresh = math.floor(configs.user.threshold * cc)
+    thresh = math.floor(thresh * cc)
   end
   if
     len < thresh or not vim.tbl_contains(configs.user.modes, vim.fn.mode())

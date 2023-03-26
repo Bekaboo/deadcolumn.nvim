@@ -9,14 +9,14 @@
 ==============================================================================
 CONTENTS                                                 *deadcolumn-contents*
 
-1.Introduction                                  |deadcolumn.nvim-introduction|
-2.Options                                            |deadcolumn.nvim-options|
-3.FAQ                                                    |deadcolumn.nvim-faq|
+1.Introduction                                       |deadcolumn.introduction|
+2.Options                                                 |deadcolumn.options|
+3.FAQ                                                         |deadcolumn.faq|
 4.Known Issues					     |deadcolumn.known-issues|
 
 
 ==============================================================================
-INTRODUCTION                                         *deadcolumn-introduction*
+INTRODUCTION                                         *deadcolumn.introduction*
 
 Deadcolumn is a neovim plugin to assist users in maintaining a specific column
 width in their code. This plugin operates by gradually displaying the
@@ -31,10 +31,10 @@ With this plugin, you can:
 
 
 ==============================================================================
-OPTIONS                                                   *deadcolumn-options*
+OPTIONS                                                   *deadcolumn.options*
 
 The following is the default options, you can pass a table to
-|deadcolumn.setup| to override the default options.
+|deadcolumn.options.setup| to override the default options.
 
 You are not required to call the setup function if you don’t want to change
 the default options, the plugin should work out of the box.
@@ -62,14 +62,14 @@ the default options, the plugin should work out of the box.
     }
 <
 
-deadcolumn.setup({opts})                            *deadcolumn-optons-setup()*
+deadcolumn.setup({opts})                            *deadcolumn.optons.setup()*
     Setup function to call to configure the defaults.
 
     Usage: `require('deadcolumn.setup({opts}))`
 
     Valid keys for {opts}
 
-                                                *deadcolumn-options-opts.scope*
+                                                *deadcolumn.options.opts.scope*
     `scope` string (default "line")
 
 	The scope for showing the colored column.
@@ -95,20 +95,20 @@ deadcolumn.setup({opts})                            *deadcolumn-optons-setup()*
 
 	    Colored column will be shown based on current cursor position.
 
-                                                 *deadcolumn-options-ops.modes*
+                                                 *deadcolumn.options.ops.modes*
     `modes` table
 	(default: { "i", "ic", "ix", "R", "Rc", "Rx", "Rv", "Rvc", "Rvx" })
 
 	In which modes to show the colored column.
 
-                                              *deadcolumn-options.ops.blending*
+                                              *deadcolumn.options.ops.blending*
     `blending` table
 
 	Blending options.
 
 	Valid fields:
 
-	1. `threshold` number	   *deadcolumn-options-opts.blending.threshold*
+	1. `threshold` number	   *deadcolumn.options.opts.blending.threshold*
 	    (default: 0.75)
 
 	    The threshold for showing the colored column.
@@ -121,37 +121,37 @@ deadcolumn.setup({opts})                            *deadcolumn-optons-setup()*
 	    fixed threshold, the colored column will be shown when the current
 	    line is longer than `threshold` characters.
 	
-	2. `colorcode` string      *deadcolumn-options.opts.blending.colorcode*
+	2. `colorcode` string      *deadcolumn.options.opts.blending.colorcode*
 	    (default: "#000000")
 
 	    The color code to be used as the background color for blending.
 
-	3. `hlgroup` table	     *deadcolumn-options.opts.blending.hlgroup*
+	3. `hlgroup` table	     *deadcolumn.options.opts.blending.hlgroup*
 	    (default: { "Normal", "background" })
 
 	    The highlight group to be used as the background color for
 	    blending. If the highlight group is not found, `colorcode` will be
 	    used.
 
-                                               *deadcolumn-options.ops.warning*
+                                               *deadcolumn.options.ops.warning*
     `warning` table
 
 	Warning color options.
 
 	Valid fields:
 
-	1. `alpha` number               *deadcolumn-options-opts.warning.alpha*
+	1. `alpha` number               *deadcolumn.options.opts.warning.alpha*
 	    (default: 0.4)
 
 	    Alpha value for the warning color, blended with the background
 	    color.
 
-	2. `colorcode` string        *deadcolumn-options-ops.warning.colorcode*
+	2. `colorcode` string        *deadcolumn.options.ops.warning.colorcode*
 	     (default: "#FF0000")
 
 	    Color code for the warning color.
 
-	3. `hlgroup` table             *deadcolumn-options-ops.warning.hlgroup*
+	3. `hlgroup` table             *deadcolumn.options.ops.warning.hlgroup*
 	     (default: { "Error", "background" })
 
 	    The highlight group for the warning color.
@@ -159,11 +159,11 @@ deadcolumn.setup({opts})                            *deadcolumn-optons-setup()*
 
 
 ==============================================================================
-FAQ                                                           *deadcolumn-faq*
+FAQ                                                           *deadcolumn.faq*
 
 ------------------------------------------------------------------------------
 Why can’t I see the colored column?
-*deadcolumn-faq-colorcolumn-not-visible*
+*deadcolumn.faq.colorcolumn-not-visible*
 
 Please make sure you have set 'colorcolumn' to a value greater than 0.
 If you set 'colorcolumn' to a relative value (e.g. -10), make sure
@@ -172,7 +172,7 @@ If you set 'colorcolumn' to a relative value (e.g. -10), make sure
 
 ------------------------------------------------------------------------------
 How to set different colorcolumn for different filetypes?
-*deadcolumn-faq-different-colorcolumn-per-filetype*
+*deadcolumn.faq.different-colorcolumn-per-filetype*
 
 Deadcolumn does not set 'colorcolumn' for you, it only reads and uses the
 value of 'colorcolumn' of the current buffer to show the colored column
@@ -212,10 +212,10 @@ Transparent Background
 
 If you are using a transparent background, the colored column may not be
 displayed properly, since the background color of the colored column
-dynamically changed based on the blending of `'Normal'` background color and
-the orignial `'CoolorColumn'` background color.
+dynamically changed based on the blending of `hl-Normal` background color and
+the orignial `hl-ColorColumn` background color.
 
-If Deadcolumn cannot find the `'Normal'` background color, it will use
+If Deadcolumn cannot find the `hl-Normal` background color, it will use
 '#000000' (pure black) as the default background color for blending.
 
 There is no way to fix this, since terminal emulators do not support setting
@@ -228,7 +228,7 @@ Workarounds:
    greater than 'colorcolumn'.
 
 2. You can assign a different highlight group or a fixed colorcode to be used
-   for blending with the original `ColorColumn` background color, for
+   for blending with the original `hl-ColorColumn` background color, for
    example:
 >lua
    require('deadcolumn').setup({

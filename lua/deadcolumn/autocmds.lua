@@ -80,8 +80,8 @@ local function redraw_colorcolumn()
   end
 
   local len = scope_len_fn[configs.user.scope]()
-  local thresh = configs.user.threshold
-  if 0 < configs.user.threshold and configs.user.threshold <= 1 then
+  local thresh = configs.user.blending.threshold
+  if 0 < thresh and thresh <= 1 then
     thresh = math.floor(configs.user.threshold * cc)
   end
   if
@@ -94,10 +94,14 @@ local function redraw_colorcolumn()
   vim.wo.cc = vim.w.cc
 
   -- Show blended color when len < cc
-  local normal_bg = colors.get_hl('Normal', 'background')
+  local normal_bg = colors.get_hl(
+    configs.user.blending.hlgroup[1],
+    configs.user.blending.hlgroup[2],
+    configs.user.blending.colorcode
+  )
   if len < cc then
     vim.api.nvim_set_hl(0, 'ColorColumn', {
-      bg = '#' .. colors.blend(
+      bg = colors.blend(
         store.colorcol_bg,
         normal_bg,
         (len - thresh) / (cc - thresh)
@@ -110,8 +114,7 @@ local function redraw_colorcolumn()
       configs.user.warning.colorcode
     )
     vim.api.nvim_set_hl(0, 'ColorColumn', {
-      bg = '#'
-        .. colors.blend(warning_color, normal_bg, configs.user.warning.alpha),
+      bg = colors.blend(warning_color, normal_bg, configs.user.warning.alpha),
     })
   end
 end

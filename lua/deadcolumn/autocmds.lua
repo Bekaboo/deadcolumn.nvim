@@ -270,17 +270,54 @@ local function make_autocmds()
 
   -- Fix cursor position issues
   vim.on_key(function(char)
-    if vim.fn.mode() == 'n' and char == '$' then
+    local mode = vim.fn.mode()
+    vim.w._last_key = char
+    if vim.startswith(mode, 'n') and char == '$' then
       vim.w._eol = true
-    else
-      vim.w._eol = false
     end
   end, vim.api.nvim_create_namespace('AutoColorColumn'))
-  vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+  vim.api.nvim_create_autocmd({ 'BufWinEnter', 'InsertEnter' }, {
     group = 'AutoColorColumn',
     callback = function()
-      if vim.w._eol then
+      -- Record last cursor row position and largest column position
+      vim.w._cursor = vim.api.nvim_win_get_cursor(0)
+      vim.print('WinEnter/InsertEnter, set vim.w._cursor to ' .. vim.inspect(vim.w._cursor))
+    end,
+  })
+  vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+    group = 'AutoColorColumn',
+    callback = function(tbl)
+      if not vim.w._cursor then
+        vim.print('No _cursor, return')
+        return
+      end
+      local cursor = vim.api.nvim_win_get_cursor(0)
+      -- Same row, update _cursor, set _eol and return
+      if cursor[1] == vim.w._cursor[1] then
+        vim.print('Same row, update _cursor')
+        vim.w._cursor = cursor
+        vim.w._eol = vim.w._last_key == '$' and true or false
+        return
+      end
+      -- Different row, if in normal mode and _eol is set, move cursor to EOL,
+      -- update _cursor and return
+      if tbl.event == 'CursorMoved' and vim.w._eol then
+        vim.print('CursorMoved, mode is n and _eol is true')
         vim.cmd('silent! normal! $')
+        vim.w._cursor = cursor
+        return
+      end
+      -- Different row, in normal mode but _eol is not set, or in
+      -- insert/replace mode, should update cursor column to furthest column
+      -- position and udate _cursor
+      if cursor[2] < vim.w._cursor[2] then
+        local target = { cursor[1], vim.w._cursor[2] }
+        vim.api.nvim_win_set_cursor(0, target)
+        vim.w._cursor = target
+        vim.print('CursorMoved, mode is n and _eol is false, or mode is i/r, set cursor to ' .. vim.inspect(target) .. ', update _cursor')
+      else
+        vim.w._cursor = cursor
+        vim.print('CursorMoved, mode is n and _eol is false, or mode is i/r, update _cursor')
       end
     end,
   })

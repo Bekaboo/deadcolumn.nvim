@@ -58,10 +58,25 @@ local function resolve_cc(cc)
   return cc_min
 end
 
+---Fallback to the first non-empty string
+---@vararg string
+---@return string|nil
+local function str_fallback(...)
+  local args = { ... }
+  for _, arg in pairs(args) do
+    if type(arg) == 'string' and arg ~= '' then
+      return arg
+    end
+  end
+  return nil
+end
+
 ---Redraw the colorcolumn
 local function redraw_colorcolumn()
   local cc = resolve_cc(vim.w.cc)
   if not cc then
+    vim.wo.cc = ''
+    vim.print('not cc')
     return
   end
 
@@ -104,12 +119,18 @@ end
 
 ---Hide the colorcolumn
 local function init()
-  vim.g.cc = vim.go.cc
-  vim.go.cc = ''
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
+  vim.print('init')
+  local wins = vim.api.nvim_list_wins()
+  for _, win in ipairs(wins) do
     vim.w[win].cc = vim.wo[win].cc
+    vim.print('vim.w[win].cc: ' .. vim.inspect(vim.w[win].cc))
+  end
+  vim.g.cc = vim.go.cc
+  vim.print('vim.g.cc: ' .. vim.inspect(vim.g.cc))
+  for _, win in ipairs(wins) do
     vim.wo[win].cc = ''
   end
+  vim.go.cc = ''
   store.colorcol_bg = colors.get_hl('ColorColumn', 'background')
 end
 
@@ -123,8 +144,26 @@ end
 --    or inheritance, it will only change when a different buffer is displayed
 --    or the option is set explicitly (via set or setlocal)
 local function make_autocmds()
-  -- Save previous window cc settings
   vim.api.nvim_create_augroup('AutoColorColumn', { clear = true })
+
+--   -- Save original cc settings
+--   vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
+--   group = 'AutoColorColumn',
+--   callback = function()
+--     vim.print('BufWinEnter init')
+--     vim.g.cc = vim.go.cc
+--     vim.w.cc = vim.wo.cc
+--     vim.print('vim.go.cc: ' .. vim.inspect(vim.go.cc))
+--     vim.print('vim.wo.cc: ' .. vim.inspect(vim.wo.cc))
+--     vim.print('vim.g.cc: ' .. vim.inspect(vim.g.cc))
+--     vim.print('vim.w.cc: ' .. vim.inspect(vim.w.cc))
+--     vim.go.cc = ''
+--     vim.wo.cc = ''
+--   end,
+--   once = true,
+-- })
+
+  -- Save previous window cc settings
   vim.api.nvim_create_autocmd({ 'WinLeave' }, {
     group = 'AutoColorColumn',
     callback = function()
@@ -137,7 +176,7 @@ local function make_autocmds()
   vim.api.nvim_create_autocmd({ 'WinNew' }, {
     group = 'AutoColorColumn',
     callback = function()
-      vim.w.cc = store.previous_cc or vim.g.cc
+      vim.w.cc = str_fallback(store.previous_cc, vim.g.cc)
     end,
   })
 
@@ -146,8 +185,20 @@ local function make_autocmds()
   vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
     group = 'AutoColorColumn',
     callback = function()
-      vim.b.cc = vim.b.cc or vim.g.cc
-      vim.w.cc = vim.b.cc or vim.g.cc
+      vim.b.cc = str_fallback(vim.b.cc, vim.wo.cc, vim.g.cc)
+      vim.w.cc = str_fallback(vim.b.cc, vim.wo.cc, vim.g.cc)
+      vim.print('BufWinEnter broadcast')
+      vim.print('vim.go.cc: ' .. vim.inspect(vim.go.cc))
+      vim.print('vim.wo.cc: ' .. vim.inspect(vim.wo.cc))
+      vim.print('vim.b.cc: ' .. vim.inspect(vim.b.cc))
+      vim.print('vim.w.cc: ' .. vim.inspect(vim.w.cc))
+      vim.print('vim.g.cc: ' .. vim.inspect(vim.g.cc))
+      vim.print('current mode: ' .. vim.fn.mode())
+      vim.print('configs.user.modes: ' .. vim.inspect(configs.user.modes))
+      if not vim.tbl_contains(configs.user.modes, vim.fn.mode()) then
+        vim.print('disable wo.cc')
+        vim.wo.cc = ''
+      end
     end,
   })
 
@@ -155,7 +206,9 @@ local function make_autocmds()
   vim.api.nvim_create_autocmd({ 'WinEnter' }, {
     group = 'AutoColorColumn',
     callback = function()
-      vim.w.cc = vim.w.cc or vim.wo.cc
+      vim.w.cc = str_fallback(vim.w.cc, vim.wo.cc)
+      vim.print('WinEnter')
+      vim.print('vim.w.cc: ' .. vim.inspect(vim.w.cc))
     end,
   })
 
@@ -164,13 +217,21 @@ local function make_autocmds()
     group = 'AutoColorColumn',
     pattern = 'colorcolumn',
     callback = function()
+      vim.print('OptionSet')
       if vim.v.option_type == 'global' then
         vim.g.cc = vim.go.cc
         vim.w.cc = vim.go.cc
         vim.b.cc = vim.go.cc
+        vim.print('global')
+        vim.print('vim.g.cc: ' .. vim.inspect(vim.g.cc))
+        vim.print('vim.w.cc: ' .. vim.inspect(vim.w.cc))
+        vim.print('vim.b.cc: ' .. vim.inspect(vim.b.cc))
       elseif vim.v.option_type == 'local' then
         vim.w.cc = vim.wo.cc
         vim.b.cc = vim.wo.cc
+        vim.print('local')
+        vim.print('vim.w.cc: ' .. vim.inspect(vim.w.cc))
+        vim.print('vim.b.cc: ' .. vim.inspect(vim.b.cc))
       end
       vim.go.cc = ''
       vim.wo.cc = ''

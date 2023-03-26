@@ -103,8 +103,8 @@ end
 ---@param alpha number between 0~1, weight of the first color
 ---@return string hex_blended blended hex color
 local function blend(hex1, hex2, alpha)
-  local rgb1 = hex2rgb(hex1)
-  local rgb2 = hex2rgb(hex2)
+  local rgb1 = hex2rgb(hex1:gsub('^#', '', 1))
+  local rgb2 = hex2rgb(hex2:gsub('^#', '', 1))
 
   local rgb_blended = {
     alpha * rgb1[1] + (1 - alpha) * rgb2[1],
@@ -112,20 +112,20 @@ local function blend(hex1, hex2, alpha)
     alpha * rgb1[3] + (1 - alpha) * rgb2[3],
   }
 
-  return rgb2hex(rgb_blended)
+  return '#' .. rgb2hex(rgb_blended)
 end
 
 ---Get background color in hex
 ---@param hlgroup_name string
 ---@param field string 'foreground' or 'background'
----@param fallback string|nil fallback color in hex, default to '000000'
+---@param fallback string|nil fallback color in hex, default to '#000000'
 ---@return string hex color
 local function get_hl(hlgroup_name, field, fallback)
-  fallback = fallback or '000000'
+  fallback = fallback or '#000000'
   local has_hlgroup, hlgroup =
     pcall(vim.api.nvim_get_hl_by_name, hlgroup_name, true)
   if has_hlgroup and hlgroup[field] then
-    return dec2hex(hlgroup[field])
+    return '#' .. dec2hex(hlgroup[field])
   end
   return fallback
 end

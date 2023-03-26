@@ -266,6 +266,23 @@ local function make_autocmds()
     group = 'AutoColorColumn',
     callback = redraw_colorcolumn,
   })
+
+  -- Fix cursor position issues
+  vim.on_key(function(char)
+    if vim.fn.mode() == 'n' and char == '$' then
+      vim.w._eol = true
+    else
+      vim.w._eol = false
+    end
+  end, vim.api.nvim_create_namespace('AutoColorColumn'))
+  vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+    group = 'AutoColorColumn',
+    callback = function()
+      if vim.w._eol then
+        vim.cmd('silent! normal! $')
+      end
+    end,
+  })
 end
 
 return {

@@ -85,9 +85,16 @@ function to override the default options.
 
 ```lua
 local opts = {
-    threshold = 0.75,
     scope = 'line',
     modes = { 'i', 'ic', 'ix', 'R', 'Rc', 'Rx', 'Rv', 'Rvc', 'Rvx' },
+    blending = {
+        threshold = 0.75,
+        colorcode = '#000000',
+        hlgroup = {
+            'Normal',
+            'background',
+        },
+    }
     warning = {
         alpha = 0.4,
         colorcode = '#FF0000',
@@ -100,16 +107,6 @@ local opts = {
 
 require('deadcolumn').setup(opts) -- Call the setup function
 ```
-
-- `threshold` (number): The threshold for showing the colored column.
-
-    - If `threshold` is a number between 0 and 1, it will be treated as a
-      relative threshold, the colored column will be shown when the current
-      line is longer than `threshold` times the `colorcolumn`.
-
-    - If `threshold` is a number greater than 1, it will be treated as a fixed
-      threshold, the colored column will be shown when the current line is
-      longer than `threshold` characters.
 
 - `scope` (string): The scope for showing the colored column, there are several
   possible values:
@@ -127,6 +124,26 @@ require('deadcolumn').setup(opts) -- Call the setup function
       position.
 
 - `modes` (table): In which modes to show the colored column.
+
+- `blending` (table): Blending options.
+
+    - `threshold` (number): The threshold for showing the colored column.
+
+        - If `threshold` is a number between 0 and 1, it will be treated as a
+          relative threshold, the colored column will be shown when the current
+          line is longer than `threshold` times the `colorcolumn`.
+
+        - If `threshold` is a number greater than 1, it will be treated as a fixed
+          threshold, the colored column will be shown when the current line is
+          longer than `threshold` characters.
+
+    - `colorcode` (string): The color code to be used as the background color for
+      blending.
+
+    - `hlgroup` (table): The highlight group to be used as the background color
+      for blending.
+
+        - *If the highlight group is not found, `colorcode` will be used*.
 
 - `warning` (table): Warning color options.
 
@@ -199,9 +216,27 @@ If Deadcolumn cannot find the `'Normal'` background color, it will use
 There is no way to fix this, since terminal emulators do not support setting
 a transparent background color for a specific character.
 
-**Workaround:** You can set `opts.threshold` to 1 to disable blending when the
-length is smaller than `colorcolumn` and show the colored column only when it
-is greater than `colorcolumn`.
+**Workarounds:**
+
+1. You can set `opts.threshold` to 1 to disable blending when the length is
+   smaller than `colorcolumn` and show the colored column only when it is
+   greater than `colorcolumn`, OR
+
+2. You can assign a different highlight group or a fixed colorcode to be used
+   for blending with the original `'ColorColumn'` background color, for
+   example:
+
+   ```lua
+   require('deadcolumn').setup({
+       blending = {
+           colorcode = '#1F2430',
+           hlgroup = {
+               'NonText',
+               'background',
+           },
+       },
+   })
+   ```
 
 ## Similar Projects
 

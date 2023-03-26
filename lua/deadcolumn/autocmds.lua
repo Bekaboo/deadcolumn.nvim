@@ -198,9 +198,12 @@ local function make_autocmds()
     group = 'AutoColorColumn',
     callback = function()
       vim.b._cc = vim.wo.cc
+      vim.g._cc = vim.go.cc
       vim.print('BufReadPre')
       vim.print('vim.wo.cc: ' .. vim.inspect(vim.wo.cc))
       vim.print('vim.b._cc: ' .. vim.inspect(vim.b._cc))
+      vim.print('vim.go.cc: ' .. vim.inspect(vim.go.cc))
+      vim.print('vim.g._cc: ' .. vim.inspect(vim.g._cc))
     end,
   })
   vim.api.nvim_create_autocmd({ 'FileType' }, {
@@ -209,11 +212,17 @@ local function make_autocmds()
       vim.print('FileType')
       vim.print('vim.wo.cc: ' .. vim.inspect(vim.wo.cc))
       vim.print('vim.b._cc: ' .. vim.inspect(vim.b._cc))
+      vim.print('vim.go.cc: ' .. vim.inspect(vim.go.cc))
+      vim.print('vim.g._cc: ' .. vim.inspect(vim.g._cc))
       -- If cc changes between BufReadPre and FileType, it is an ftplugin
       -- that sets cc, so we accept it as a 'buffer-local' (phony) cc setting
       if vim.wo.cc ~= vim.b._cc then
         vim.print('vim.wo.cc ~= vim.b._cc, set vim.b.cc')
         vim.b.cc = vim.wo.cc
+      end
+      if vim.go.cc ~= vim.g._cc then
+        vim.print('vim.go.cc ~= vim.g._cc, set vim.g.cc')
+        vim.g.cc = vim.go.cc
       end
     end,
   })

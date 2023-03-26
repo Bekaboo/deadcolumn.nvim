@@ -21,6 +21,7 @@ keep their code aligned within a specific column range.
 - [Installation](#installation)
 - [Options](#options)
 - [FAQ](#faq)
+- [Known Issues](#known-issues)
 - [Similar Projects](#similar-projects)
 
 ## Features
@@ -140,48 +141,67 @@ require('deadcolumn').setup(opts) -- Call the setup function
 
 ## FAQ
 
-- **Why can't I see the colored column?**
+### Why can't I see the colored column?
 
-    Please make sure you have set `colorcolumn` to a value greater than 0.
+Please make sure you have set `colorcolumn` to a value greater than 0.
 
-    If you set `colorcolumn` to a relative value (e.g. `'-10'`), make sure
-    `textwidth` is set to a value greater than 0.
+If you set `colorcolumn` to a relative value (e.g. `'-10'`), make sure
+`textwidth` is set to a value greater than 0.
 
-- **How to set different `colorcolumn` for different filetypes?**
+### How to set different `colorcolumn` for different filetypes?
 
-    This plugin does not set `colorcolumn` for you, it only reads and uses the
-    value of `colorcolumn` of the current buffer to show the colored column
-    when needed.
+This plugin does not set `colorcolumn` for you, it only reads and uses the
+value of `colorcolumn` of the current buffer to show the colored column
+when needed.
 
-    It leaves to you to set `colorcolumn` for different filetypes, under different
-    conditions, which is more flexible compared to setting `colorcolumn` in the
-    plugin setup function.
+It leaves to you to set `colorcolumn` for different filetypes, under different
+conditions, which is more flexible compared to setting `colorcolumn` in the
+plugin setup function.
 
-    There are mainly two ways to set `colorcolumn` for different filetypes:
+There are mainly two ways to set `colorcolumn` for different filetypes:
 
-    1. Using `autocmd`:
+1. Using `autocmd`:
 
-        You can use the `autocmd` command to set `colorcolumn` for different
-        filetypes.
+    You can use the `autocmd` command to set `colorcolumn` for different
+    filetypes.
 
-        For example, you can set `colorcolumn` to 80 for markdown files:
+    For example, you can set `colorcolumn` to 80 for markdown files:
 
-        ```vim
-        autocmd FileType markdown setlocal colorcolumn=80
-        ```
+    ```vim
+    autocmd FileType markdown setlocal colorcolumn=80
+    ```
 
-    2. Using `ftplugin`:
+2. Using `ftplugin`:
 
-        You can also use the `ftplugin` directory to set `colorcolumn` for
-        different filetypes.
+    You can also use the `ftplugin` directory to set `colorcolumn` for
+    different filetypes.
 
-        For example, you can create a file named `markdown.vim` in the
-        `ftplugin` directory under your config directory, and set `colorcolumn`
-        to 80 for `markdown` files:
+    For example, you can create a file named `markdown.vim` in the
+    `ftplugin` directory under your config directory, and set `colorcolumn`
+    to 80 for `markdown` files:
 
-        ```vim
-        setlocal colorcolumn=80
-        ```
+    ```vim
+    setlocal colorcolumn=80
+    ```
+
+## Known Issues
+
+### Transparent Background
+
+If you are using a transparent background, the colored column may not be
+displayed properly, since the background color of the colored column
+dynamically changed based on the blending of `'Normal'` background color and
+the orignial `'CoolorColumn'` background color.
+
+If Deadcolumn cannot find the `'Normal'` background color, it will use
+`'#000000'` (pure black) as the default background color for blending.
+
+There is no way to fix this, since terminal emulators do not support setting
+a transparent background color for a specific character.
+
+**Workaround:** You can set `opts.threshold` to 1 to disable blending when the
+length is smaller than `colorcolumn` and show the colored column only when it
+is greater than `colorcolumn`.
 
 ## Similar Projects
 

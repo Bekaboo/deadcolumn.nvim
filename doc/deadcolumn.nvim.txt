@@ -1,19 +1,22 @@
 *deadcolumn.nvim.txt*       A neovim plugin that shows colorcolumn dynamically
 *deadcolumn.nvim*
+*deadcolumn.txt*
+*deadcolumn*
 
 		      deadcolumn.nvim    by Bekaboo
 
 
 ==============================================================================
-CONTENTS                                            *deadcolumn.nvim-contents*
+CONTENTS                                                 *deadcolumn-contents*
 
 1.Introduction                                  |deadcolumn.nvim-introduction|
 2.Options                                            |deadcolumn.nvim-options|
 3.FAQ                                                    |deadcolumn.nvim-faq|
+4.Known Issues					     |deadcolumn.known-issues|
 
 
 ==============================================================================
-INTRODUCTION                                    *deadcolumn.nvim-introduction*
+INTRODUCTION                                         *deadcolumn-introduction*
 
 Deadcolumn is a neovim plugin to assist users in maintaining a specific column
 width in their code. This plugin operates by gradually displaying the
@@ -28,7 +31,7 @@ With this plugin, you can:
 
 
 ==============================================================================
-OPTIONS                                              *deadcolumn.nvim-options*
+OPTIONS                                                   *deadcolumn-options*
 
 The following is the default options, you can pass a table to
 |deadcolumn.setup| to override the default options.
@@ -52,14 +55,14 @@ the default options, the plugin should work out of the box.
     }
 <
 
-deadcolumn.setup({opts})                                  *deadcolumn.setup()*
+deadcolumn.setup({opts})                            *deadcolumn-optons-setup()*
     Setup function to call to configure the defaults.
 
     Usage: `require('deadcolumn.setup({opts}))`
 
     Valid keys for {opts}
 
-                                                   *deadcolumn.opts.threshold*
+                                            *deadcolumn-options-opts.threshold*
     `threshold` number (default 0.75)
 
 	The threshold for showing the colored column.
@@ -72,7 +75,7 @@ deadcolumn.setup({opts})                                  *deadcolumn.setup()*
 	fixed threshold, the colored column will be shown when the current
 	line is longer than `threshold` characters.
 
-                                                       *deadcolumn.opts.scope*
+                                                *deadcolumn-options-opts.scope*
     `scope` string (default "line")
 
 	The scope for showing the colored column.
@@ -98,30 +101,31 @@ deadcolumn.setup({opts})                                  *deadcolumn.setup()*
 
 	    Colored column will be shown based on current cursor position.
 
-                                                       *deadcolumn.opts.modes*
+                                                 *deadcolumn-options-ops.modes*
     `modes` table
 	(default: { "i", "ic", "ix", "R", "Rc", "Rx", "Rv", "Rvc", "Rvx" })
 
 	In which modes to show the colored column.
 
-                                                     *deadcolumn.opts.warning*
+                                               *deadcolumn-options.ops.warning*
     `warning` table
 
 	Warning color options.
 
 	Valid fields:
 
-	1. `alpha` number (default: 0.4)       *deadcolumn.opts.warning.alpha*
+	1. `alpha` number               *deadcolumn-options-opts.warning.alpha*
+	    (default: 0.4)
 
 	    Alpha value for the warning color, blended with the background
 	    color.
 
-	2. `colorcode` string              *deadcolumn.opts.warning.colorcode*
+	2. `colorcode` string        *deadcolumn-options-ops.warning.colorcode*
 	     (default: "#FF0000")
 
 	    Color code for the warning color.
 
-	3. `hlgroup` table                   *deadcolumn.opts.warning.hlgroup*
+	3. `hlgroup` table             *deadcolumn-options-ops.warning.hlgroup*
 	     (default: { "Error", "background" })
 
 	    The highlight group for the warning color.
@@ -129,45 +133,71 @@ deadcolumn.setup({opts})                                  *deadcolumn.setup()*
 
 
 ==============================================================================
-FAQ                                                      *deadcolumn.nvim-faq*
+FAQ                                                           *deadcolumn-faq*
+
+------------------------------------------------------------------------------
+Why can’t I see the colored column?
+*deadcolumn-faq-colorcolumn-not-visible*
+
+Please make sure you have set 'colorcolumn' to a value greater than 0.
+If you set 'colorcolumn' to a relative value (e.g. -10), make sure
+`textwidth` is set to a value greater than 0.
 
 
-1. Why can’t I see the colored column?
+------------------------------------------------------------------------------
+How to set different colorcolumn for different filetypes?
+*deadcolumn-faq-different-colorcolumn-per-filetype*
 
-    Please make sure you have set 'colorcolumn' to a value greater than 0.
-    If you set 'colorcolumn' to a relative value (e.g. -10), make sure
-    `textwidth` is set to a value greater than 0.
+Deadcolumn does not set 'colorcolumn' for you, it only reads and uses the
+value of 'colorcolumn' of the current buffer to show the colored column
+when needed.
 
+It leaves to you to set 'colorcolumn' for different filetypes, under
+different conditions, which is more flexible compared to setting
+'colorcolumn' in the plugin setup function.
 
-2. How to set different colorcolumn for different filetypes?
+There are mainly two ways to set 'colorcolumn' for different filetypes:
 
-    Deadcolumn does not set 'colorcolumn' for you, it only reads and uses the
-    value of 'colorcolumn' of the current buffer to show the colored column
-    when needed.
+1. Using |autocmd|
 
-    It leaves to you to set 'colorcolumn' for different filetypes, under
-    different conditions, which is more flexible compared to setting
-    'colorcolumn' in the plugin setup function.
-
-    There are mainly two ways to set 'colorcolumn' for different filetypes:
-
-    1. Using |autocmd|
-
-	Youcan use `:autocmd` to set 'colorcolumn' for different filetypes.
-	For example, you can set 'colorcolumn' to 80 for markdown files:
+    Youcan use `:autocmd` to set 'colorcolumn' for different filetypes.
+    For example, you can set 'colorcolumn' to 80 for markdown files:
 >vim
-	autocmd FileType markdown setlocal colorcolumn=80
+    autocmd FileType markdown setlocal colorcolumn=80
 <
-    2. Using |ftplugin|
+2. Using |ftplugin|
 
-	You can also use the ftplugin directory to set 'colorcolumn' for
-	different filetypes.
+    You can also use the ftplugin directory to set 'colorcolumn' for
+    different filetypes.
 
-	For example, you can create a file named `markdown.vim` in the
-	`ftplugin` directory under your config directory, and set
-	'colorcolumn' to 80 for markdown files:
+    For example, you can create a file named `markdown.vim` in the
+    `ftplugin` directory under your config directory, and set
+    'colorcolumn' to 80 for markdown files:
 >vim
-	setlocal colorcolumn=80
+    setlocal colorcolumn=80
 <
+
+==============================================================================
+Known Issues					     *deadcolumn.known-issues*
+
+------------------------------------------------------------------------------
+Transparent Background
+*deadcolumn.known-issues.transparant-background*
+
+If you are using a transparent background, the colored column may not be
+displayed properly, since the background color of the colored column
+dynamically changed based on the blending of `'Normal'` background color and
+the orignial `'CoolorColumn'` background color.
+
+If Deadcolumn cannot find the `'Normal'` background color, it will use
+'#000000' (pure black) as the default background color for blending.
+
+There is no way to fix this, since terminal emulators do not support setting
+a transparent background color for a specific character.
+
+**Workaround:** You can set `opts.threshold` to 1 to disable blending when the
+length is smaller than 'colorcolumn' and show the colored column only when it
+is greater than 'colorcolumn'.
+
 
 vim:tw=78:ts=8:noet:ft=help:norl:

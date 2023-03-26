@@ -72,11 +72,11 @@ local function str_fallback(...)
 end
 
 ---Redraw the colorcolumn
-local function redraw_colorcolumn()
+local function redraw_colorcolumn(tbl)
+  vim.print('redraw_colorcolumn called by ' .. vim.inspect(tbl.event))
   local cc = resolve_cc(vim.w.cc)
   if not cc then
     vim.wo.cc = ''
-    vim.print('not cc')
     return
   end
 
@@ -88,7 +88,10 @@ local function redraw_colorcolumn()
   if
     len < thresh or not vim.tbl_contains(configs.user.modes, vim.fn.mode())
   then
-    vim.opt.cc = ''
+    vim.print('len too short or mode not in modes')
+    vim.print('len: ' .. len)
+    vim.print('mode: ' .. vim.fn.mode())
+    vim.wo.cc = ''
     return
   end
 
@@ -196,33 +199,39 @@ local function make_autocmds()
   -- Handle cc settings from ftplugins
   vim.api.nvim_create_autocmd({ 'BufReadPre' }, {
     group = 'AutoColorColumn',
-    callback = function()
+    callback = function(tbl)
       vim.b._cc = vim.wo.cc
       vim.g._cc = vim.go.cc
-      vim.print('BufReadPre')
+      vim.print('BufReadPre: ' .. tbl.file)
       vim.print('vim.wo.cc: ' .. vim.inspect(vim.wo.cc))
       vim.print('vim.b._cc: ' .. vim.inspect(vim.b._cc))
       vim.print('vim.go.cc: ' .. vim.inspect(vim.go.cc))
       vim.print('vim.g._cc: ' .. vim.inspect(vim.g._cc))
+      vim.print('vim.w.cc: ' .. vim.inspect(vim.w.cc))
+      vim.print('vim.g.cc: ' .. vim.inspect(vim.g.cc))
     end,
   })
   vim.api.nvim_create_autocmd({ 'FileType' }, {
     group = 'AutoColorColumn',
-    callback = function()
-      vim.print('FileType')
+    callback = function(tbl)
+      vim.print('FileType: ' .. tbl.file)
       vim.print('vim.wo.cc: ' .. vim.inspect(vim.wo.cc))
       vim.print('vim.b._cc: ' .. vim.inspect(vim.b._cc))
       vim.print('vim.go.cc: ' .. vim.inspect(vim.go.cc))
       vim.print('vim.g._cc: ' .. vim.inspect(vim.g._cc))
+      vim.print('vim.w.cc: ' .. vim.inspect(vim.w.cc))
+      vim.print('vim.g.cc: ' .. vim.inspect(vim.g.cc))
       -- If cc changes between BufReadPre and FileType, it is an ftplugin
       -- that sets cc, so we accept it as a 'buffer-local' (phony) cc setting
-      if vim.wo.cc ~= vim.b._cc then
-        vim.print('vim.wo.cc ~= vim.b._cc, set vim.b.cc')
+      -- Notice that we will do nothing if vim.b._cc is nil, which means the
+      -- buffer is not the same buffer that triggers BufReadPre
+      if vim.b._cc and vim.wo.cc ~= vim.b._cc then
         vim.b.cc = vim.wo.cc
-      end
-      if vim.go.cc ~= vim.g._cc then
-        vim.print('vim.go.cc ~= vim.g._cc, set vim.g.cc')
-        vim.g.cc = vim.go.cc
+        vim.print('vim.wo.cc ~= vim.b._cc, set vim.b.cc to ' .. vim.inspect(vim.b.cc))
+        if vim.go.cc ~= vim.g._cc then
+          vim.g.cc = vim.go.cc
+          vim.print('vim.go.cc ~= vim.g._cc, set vim.g.cc to ' .. vim.inspect(vim.g.cc))
+        end
       end
     end,
   })
@@ -231,10 +240,10 @@ local function make_autocmds()
   -- when a different buffer is displayed in current window
   vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
     group = 'AutoColorColumn',
-    callback = function()
+    callback = function(tbl)
       vim.b.cc = str_fallback(vim.b.cc, vim.g.cc)
       vim.w.cc = str_fallback(vim.b.cc, vim.g.cc)
-      vim.print('BufWinEnter broadcast')
+      vim.print('BufWinEnter broadcast: ' .. tbl.file)
       vim.print('vim.go.cc: ' .. vim.inspect(vim.go.cc))
       vim.print('vim.wo.cc: ' .. vim.inspect(vim.wo.cc))
       vim.print('vim.b.cc: ' .. vim.inspect(vim.b.cc))

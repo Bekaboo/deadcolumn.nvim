@@ -45,8 +45,8 @@ keep their code aligned within a specific column range.
 
         <img src=https://user-images.githubusercontent.com/76579810/227672206-eebdb9fd-04d9-4aa1-9cc8-bf2f61e4ccfb.gif width=70%>
 
-    - Show the colored column only when current line is longer than the
-        `colorcolumn`:
+    - Show the colored column only when current line is longer than
+      `colorcolumn`:
 
         <img src=https://user-images.githubusercontent.com/76579810/227672529-8e11425e-3c8f-4f19-99f5-f453a0476dbf.gif width=70%>
 
@@ -75,9 +75,9 @@ end)
 
 :warning: **Notice**
 
-You don't need to call the `setup()` function if you don't want to
-change the default options, the plugin should work out of the box if you set
-`colorcolumn` to a value greater than 0.
+You don't need to call the `setup()` function if you don't want to change the
+default options, the plugin should work out of the box if you set `colorcolumn`
+to a value greater than 0.
 
 The following is the default options, you can pass a table to the `setup()`
 function to override the default options.
@@ -103,21 +103,21 @@ require('deadcolumn').setup(opts) -- Call the setup function
 - `threshold` (number): The threshold for showing the colored column.
 
     - If `threshold` is a number between 0 and 1, it will be treated as a
-        relative threshold, the colored column will be shown when the current
-        line is longer than `threshold` times the `colorcolumn`.
+      relative threshold, the colored column will be shown when the current
+      line is longer than `threshold` times the `colorcolumn`.
 
-    - If `threshold` is a number greater than 1, it will be treated as a
-        fixed threshold, the colored column will be shown when the current line
-        is longer than `threshold` characters.
+    - If `threshold` is a number greater than 1, it will be treated as a fixed
+      threshold, the colored column will be shown when the current line is
+      longer than `threshold` characters.
 
 - `scope` (string): The scope for showing the colored column, there are several
-    possible values:
+  possible values:
 
     - `'line'`: colored column will be shown based on the length of the current
       line.
 
-    - `'buffer'`: colored column will be shown based on the length of the longest
-      line in current buffer (up to 1000 lines around current line).
+    - `'buffer'`: colored column will be shown based on the length of the
+      longest line in current buffer (up to 1000 lines around current line).
 
     - `'visible'`: colored column will be shown based on the length of the
       longest line in the visible area.
@@ -129,8 +129,8 @@ require('deadcolumn').setup(opts) -- Call the setup function
 
 - `warning` (table): Warning color options.
 
-    - `alpha` (number): The alpha value for the warning color, blended with
-        the background color.
+    - `alpha` (number): The alpha value for the warning color, blended with the
+      background color.
 
     - `colorcode` (string): The color code for the warning color.
 
@@ -175,12 +175,12 @@ require('deadcolumn').setup(opts) -- Call the setup function
         You can also use the `ftplugin` directory to set `colorcolumn` for
         different filetypes.
 
-        For example, you can create a file named `markdown.lua` in the `ftplugin`
-        directory under your config directory, and set `colorcolumn` to 80 for
-        `markdown` files:
+        For example, you can create a file named `markdown.lua` in the
+        `ftplugin` directory under your config directory, and set `colorcolumn`
+        to 80 for `markdown` files:
 
-        ```lua
-        vim.bo.colorcolumn = '80'
+        ```vim
+        setlocal colorcolumn=80
         ```
 
 ## Similar Projects

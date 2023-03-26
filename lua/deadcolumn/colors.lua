@@ -84,9 +84,17 @@ end
 ---@param rgb integer[]
 ---@return string
 local function rgb2hex(rgb)
-  return dec2hex(math.floor(rgb[1]))
-      .. dec2hex(math.floor(rgb[2]))
-      .. dec2hex(math.floor(rgb[3]))
+  local hex = {
+    dec2hex(math.floor(rgb[1])),
+    dec2hex(math.floor(rgb[2])),
+    dec2hex(math.floor(rgb[3])),
+  }
+  hex = {
+    string.rep('0', 2 - #hex[1]) .. hex[1],
+    string.rep('0', 2 - #hex[2]) .. hex[2],
+    string.rep('0', 2 - #hex[3]) .. hex[3],
+  }
+  return table.concat(hex, '')
 end
 
 ---Blend two hex colors
@@ -104,9 +112,7 @@ local function blend(hex1, hex2, alpha)
     alpha * rgb1[3] + (1 - alpha) * rgb2[3],
   }
 
-  local hex_blended = rgb2hex(rgb_blended)
-  hex_blended = hex_blended .. string.rep('0', 6 - #hex_blended)
-  return hex_blended
+  return rgb2hex(rgb_blended)
 end
 
 ---Get background color in hex

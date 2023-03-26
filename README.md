@@ -94,7 +94,7 @@ local opts = {
             'Normal',
             'background',
         },
-    }
+    },
     warning = {
         alpha = 0.4,
         colorcode = '#FF0000',

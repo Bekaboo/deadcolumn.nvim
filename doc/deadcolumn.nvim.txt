@@ -50,7 +50,7 @@ the default options, the plugin should work out of the box.
 		'Normal',
 		'background',
 	    },
-	}
+	},
 	warning = {
 	    alpha = 0.4,
 	    colorcode = '#FF0000',

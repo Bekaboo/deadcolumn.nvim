@@ -87,7 +87,7 @@ local function redraw_colorcolumn()
   if
     len < thresh or not vim.tbl_contains(configs.user.modes, vim.fn.mode())
   then
-    vim.opt.cc = ''
+    vim.wo.cc = ''
     return
   end
 
@@ -186,11 +186,13 @@ local function make_autocmds()
     callback = function()
       -- If cc changes between BufReadPre and FileType, it is an ftplugin
       -- that sets cc, so we accept it as a 'buffer-local' (phony) cc setting
-      if vim.wo.cc ~= vim.b._cc then
+      -- Notice that we will do nothing if vim.b._cc is nil, which means the
+      -- buffer is not the same buffer that triggers BufReadPre
+      if vim.b._cc and vim.wo.cc ~= vim.b._cc then
         vim.b.cc = vim.wo.cc
-      end
-      if vim.go.cc ~= vim.g._cc then
-        vim.g.cc = vim.go.cc
+        if vim.go.cc ~= vim.g._cc then
+          vim.g.cc = vim.go.cc
+        end
       end
     end,
   })

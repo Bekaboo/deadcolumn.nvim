@@ -10,10 +10,10 @@
     <img src=https://user-images.githubusercontent.com/76579810/227669246-1cb53d93-1a8b-4edd-949e-9e6da6fa698b.gif width=90%>
 </p>
 
-Deadcolumn is a Neovim plugin designed to users in maintaining a
-specific column width in their code. This plugin operates by gradually
-displaying the `colorcolumn` as the user approaches it. It is useful for
-people who wish to keep their code aligned within a specific column range.
+Deadcolumn is a neovim plugin to assist users in maintaining a specific column
+width in their code. This plugin operates by gradually displaying the
+`colorcolumn` as the user approaches it. It is useful for people who wish to
+keep their code aligned within a specific column range.
 
 **Table of Contents**
 

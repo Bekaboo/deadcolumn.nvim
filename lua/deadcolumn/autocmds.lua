@@ -249,6 +249,7 @@ local function make_autocmds()
 
   -- Show colored column
   vim.api.nvim_create_autocmd({
+    'WinScrolled',
     'ModeChanged',
     'TextChangedI',
     'TextChanged',

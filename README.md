@@ -158,12 +158,35 @@ require('deadcolumn').setup(opts) -- Call the setup function
 
 ## FAQ
 
+### Why `:echo &cc` or `lua =vim.wo.cc` is empty?
+
+If you are using the default config, this is expected.
+
+The default config makes colorcolumn visible only in insert mode and replace
+mode, so it clears `cc` in normal mode and reset it to the original value when
+you enter insert mode or replace mode. As long as the colorcolumn is displayed
+correctly in insert mode and replace mode, you don't need to worry about this.
+
+If you want to see colorcolumn in normal mode, you can change the `modes`
+option, see [Options](#options).
+
 ### Why can't I see the colored column?
 
-Please make sure you have set `colorcolumn` to a value greater than 0.
+This can have several reasons:
 
-If you set `colorcolumn` to a relative value (e.g. `'-10'`), make sure
-`textwidth` is set to a value greater than 0.
+1. If you are using the default config, it is expected that you can't see the
+   colored column in normal mode, because the colored column is only shown in
+   insert mode and replace mode by default. You can change the `modes` option
+    to show the colored column in normal mode.
+
+2. Please make sure you have set `colorcolumn` to a value greater than 0 in
+   your config. Notice that the output of `:echo &cc` or `lua =vim.wo.cc` may
+   be empty even if you have set `colorcolumn` to a value greater than 0. This
+   is because this plugin clears `colorcolumn` when it is not needed to conceal
+   the colored column, see point 1.
+
+3. If you set `colorcolumn` to a relative value (e.g. `'-10'`), make sure
+   `textwidth` is set to a value greater than 0.
 
 ### How to set different `colorcolumn` for different filetypes?
 

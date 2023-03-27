@@ -200,13 +200,27 @@ local function make_autocmds()
     end,
   })
 
-  -- Broadcast buffer or global cc settings
-  -- when a different buffer is displayed in current window
+  -- On entering a buffer, check and set vim.b.cc and vim.w.cc in the
+  -- following order:
+  -- 1. If vim.wo.cc is non empty, then it is set from a modeline, use it.
+  --    Notice that this is after the 'FileType' event, which applies ftplugin
+  --    settings
+  -- 2. If vim.b.cc if non empty, it is set previously by broadcasting or an
+  --    ftplugin, use it
+  -- 3. Else use vim.g.cc
+  -- We want to unset vim.wo.cc on leaving a buffer, so that vim.wo.cc reflects
+  -- changes from modelines
+  vim.api.nvim_create_autocmd({ 'BufLeave' }, {
+    group = 'AutoColorColumn',
+    callback = function()
+      vim.wo.cc = ''
+    end,
+  })
   vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
     group = 'AutoColorColumn',
     callback = function()
-      vim.b.cc = str_fallback(vim.b.cc, vim.g.cc)
-      vim.w.cc = str_fallback(vim.b.cc, vim.g.cc)
+      vim.b.cc = str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)
+      vim.w.cc = str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)
       if not vim.tbl_contains(configs.user.modes, vim.fn.mode()) then
         vim.wo.cc = ''
       end

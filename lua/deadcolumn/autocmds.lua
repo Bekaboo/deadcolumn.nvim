@@ -239,8 +239,8 @@ local function make_autocmds()
     end,
   })
 
-  -- Update Colorcolum background color on color scheme change
-  vim.api.nvim_create_autocmd({ 'ColorScheme' }, {
+  -- Update Colorcolum background color on ColorScheme and UIEnter
+  vim.api.nvim_create_autocmd({ 'ColorScheme', 'UIEnter' }, {
     group = 'AutoColorColumn',
     callback = function()
       store.colorcol_bg = colors.get_hl('ColorColumn', 'background')

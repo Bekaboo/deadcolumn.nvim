@@ -163,6 +163,7 @@ FAQ                                                           *deadcolumn.faq*
 
 ------------------------------------------------------------------------------
 Why `:echo &cc` or `lua =vim.wo.cc` is empty?
+*deadcolumn.faq.cc-is-empty*
 
 If you are using the default config, this is expected.
 
@@ -171,8 +172,8 @@ mode, so it clears 'cc' in normal mode and reset it to the original value when
 you enter insert mode or replace mode. As long as the 'colorcolumn' is displayed
 correctly in insert mode and replace mode, you don't need to worry about this.
 
-If you want to see 'colorcolumn' in normal mode, you can change the `modes`
-option, see |deadcolumn.options.ops.modes|.
+If you want to see 'colorcolumn' in normal mode, you can change the option
+|deadcolumn.options.ops.modes|.
 
 ------------------------------------------------------------------------------
 Why can’t I see the colored column?

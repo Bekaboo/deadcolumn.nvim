@@ -166,8 +166,8 @@ local function make_autocmds()
   -- Detect cc changes in a quite hacky way, because OptionSet autocmd is not
   -- triggered when cc is set in a ftplugin
   -- Quirk: these two commands are not the same in a ftplugin:
-  --     setlocal cc=80 " vimscript
-  --     vim.wo.cc = 80 -- lua
+  --     setlocal cc=80   " vimscript
+  --     vim.wo.cc = '80' -- lua
   -- The former (vimscript) will set the 'buffer-local' cc, i.e. it will set cc
   -- for current window BUT will be reset for a different buffer displayed in
   -- the same window.

@@ -1,22 +1,22 @@
-*deadcolumn.nvim.txt*       A neovim plugin that shows colorcolumn dynamically
+*deadcolumn.nvim.txt*        A neovim plugin that shows colorcolumn dynamically
 *deadcolumn.nvim*
 *deadcolumn.txt*
 *deadcolumn*
 
-		      deadcolumn.nvim    by Bekaboo
+                         deadcolumn.nvim    by Bekaboo
 
 
-==============================================================================
-CONTENTS                                                 *deadcolumn-contents*
+===============================================================================
+CONTENTS                                                  *deadcolumn.contents*
 
-1.Introduction                                       |deadcolumn.introduction|
-2.Options                                                 |deadcolumn.options|
-3.FAQ                                                         |deadcolumn.faq|
-4.Known Issues					     |deadcolumn.known-issues|
+1.Introduction                                        |deadcolumn.introduction|
+2.Options                                                  |deadcolumn.options|
+3.FAQ                                                          |deadcolumn.faq|
+4.Known Issues                                        |deadcolumn.known-issues|
 
 
-==============================================================================
-INTRODUCTION                                         *deadcolumn.introduction*
+===============================================================================
+INTRODUCTION                                          *deadcolumn.introduction*
 
 Deadcolumn is a neovim plugin to assist users in maintaining a specific column
 width in their code. This plugin operates by gradually displaying the
@@ -30,8 +30,8 @@ With this plugin, you can:
 3. Show the colored column only when you need it
 
 
-==============================================================================
-OPTIONS                                                   *deadcolumn.options*
+===============================================================================
+OPTIONS                                                    *deadcolumn.options*
 
 The following is the default options, you can pass a table to
 |deadcolumn.options.setup| to override the default options.
@@ -62,7 +62,7 @@ the default options, the plugin should work out of the box.
     }
 <
 
-deadcolumn.setup({opts})                            *deadcolumn.optons.setup()*
+deadcolumn.setup({opts})                           *deadcolumn.options.setup()*
     Setup function to call to configure the defaults.
 
     Usage: `require('deadcolumn.setup({opts}))`
@@ -158,10 +158,10 @@ deadcolumn.setup({opts})                            *deadcolumn.optons.setup()*
 	    If the highlight group is not found, `colorcode` will be used.
 
 
-==============================================================================
-FAQ                                                           *deadcolumn.faq*
+===============================================================================
+FAQ                                                            *deadcolumn.faq*
 
-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Why `:echo &cc` or `lua =vim.wo.cc` is empty?
 *deadcolumn.faq.cc-is-empty*
 
@@ -169,13 +169,14 @@ If you are using the default config, this is expected.
 
 The default config makes 'colorcolumn' visible only in insert mode and replace
 mode, so it clears 'cc' in normal mode and reset it to the original value when
-you enter insert mode or replace mode. As long as the 'colorcolumn' is displayed
-correctly in insert mode and replace mode, you don't need to worry about this.
+you enter insert mode or replace mode. As long as the 'colorcolumn' is
+displayed correctly in insert mode and replace mode, you don't need to worry
+about this.
 
 If you want to see 'colorcolumn' in normal mode, you can change the option
 |deadcolumn.options.ops.modes|.
 
-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Why can’t I see the colored column?
 *deadcolumn.faq.colorcolumn-not-visible*
 
@@ -196,7 +197,7 @@ This can have several reasons:
    'textwidth' is set to a value greater than 0.
 
 
-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 How to set different colorcolumn for different filetypes?
 *deadcolumn.faq.different-colorcolumn-per-filetype*
 
@@ -229,10 +230,10 @@ There are mainly two ways to set 'colorcolumn' for different filetypes:
     setlocal colorcolumn=80
 <
 
-==============================================================================
-Known Issues					     *deadcolumn.known-issues*
+===============================================================================
+Known Issues                                          *deadcolumn.known-issues*
 
-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Transparent Background
 *deadcolumn.known-issues.transparant-background*
 

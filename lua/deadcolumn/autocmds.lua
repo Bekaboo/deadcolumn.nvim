@@ -182,6 +182,9 @@ local function make_autocmds()
     callback = function()
       vim.b._cc = vim.wo.cc
       vim.g._cc = vim.go.cc
+      vim.print('============= BufReadPre =============')
+      vim.print('vim.b._cc <- vim.wo.cc = ' .. vim.inspect(vim.wo.cc))
+      vim.print('vim.g._cc <- vim.go.cc = ' .. vim.inspect(vim.go.cc))
     end,
   })
   vim.api.nvim_create_autocmd({ 'FileType' }, {
@@ -191,24 +194,49 @@ local function make_autocmds()
       -- that sets cc, so we accept it as a 'buffer-local' (phony) cc setting
       -- Notice that we will do nothing if vim.b._cc is nil, which means the
       -- buffer is not the same buffer that triggers BufReadPre
+      vim.print('============= FileType =============')
+      vim.print('vim.wo.cc = ' .. vim.inspect(vim.wo.cc))
       if vim.b._cc and vim.wo.cc ~= vim.b._cc then
         vim.b.cc = vim.wo.cc
+        vim.print('vim.b.cc <- vim.wo.cc = ' .. vim.inspect(vim.wo.cc))
         if vim.go.cc ~= vim.g._cc then
           vim.g.cc = vim.go.cc
+          vim.print('vim.g.cc <- vim.go.cc = ' .. vim.inspect(vim.go.cc))
         end
       end
     end,
   })
 
-  -- Broadcast buffer or global cc settings
-  -- when a different buffer is displayed in current window
+  -- On entering a buffer, check and set vim.b.cc and vim.w.cc in the
+  -- following order:
+  -- 1. If vim.wo.cc is non empty, then it is set from a modeline, use it.
+  --    Notice that this is after the 'FileType' event, which applies ftplugin
+  --    settings
+  -- 2. If vim.b.cc if non empty, it is set previously by broadcasting or an
+  --    ftplugin, use it
+  -- 3. Else use vim.g.cc
+  -- We want to unset vim.wo.cc on leaving a buffer, so that vim.wo.cc reflects
+  -- changes from modelines
+  vim.api.nvim_create_autocmd({ 'BufLeave' }, {
+    group = 'AutoColorColumn',
+    callback = function()
+      vim.print('============= BufLeave =============')
+      vim.print('vim.wo.cc <- ""')
+      vim.wo.cc = ''
+    end,
+  })
   vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
     group = 'AutoColorColumn',
     callback = function()
-      vim.b.cc = str_fallback(vim.b.cc, vim.g.cc)
-      vim.w.cc = str_fallback(vim.b.cc, vim.g.cc)
+      vim.print('============= BufWinEnter =============')
+      print(string.format('vim.b.cc <- str_fallback(vim.wo.cc = %s, vim.b.cc = %s, vim.g.cc = %s) = %s', vim.wo.cc, vim.b.cc, vim.g.cc, str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)))
+      vim.b.cc = str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)
+      print(string.format('vim.w.cc <- str_fallback(vim.wo.cc = %s, vim.b.cc = %s, vim.g.cc = %s) = %s', vim.wo.cc, vim.b.cc, vim.g.cc, str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)))
+      vim.w.cc = str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)
+      print('vim.wo.cc = ' .. vim.wo.cc)
       if not vim.tbl_contains(configs.user.modes, vim.fn.mode()) then
         vim.wo.cc = ''
+        print('vim.wo.cc <- ""')
       end
     end,
   })
@@ -226,14 +254,24 @@ local function make_autocmds()
     group = 'AutoColorColumn',
     pattern = 'colorcolumn',
     callback = function()
+      vim.print('============= OptionSet =============')
       if vim.v.option_type == 'global' then
+        vim.print('----------global----------')
+        vim.print('vim.g.cc <- vim.go.cc = ' .. vim.inspect(vim.go.cc))
+        vim.print('vim.w.cc <- vim.go.cc = ' .. vim.inspect(vim.go.cc))
+        vim.print('vim.b.cc <- vim.go.cc = ' .. vim.inspect(vim.go.cc))
         vim.g.cc = vim.go.cc
         vim.w.cc = vim.go.cc
         vim.b.cc = vim.go.cc
       elseif vim.v.option_type == 'local' then
+        vim.print('----------local----------')
+        vim.print('vim.b.cc <- vim.wo.cc = ' .. vim.inspect(vim.wo.cc))
+        vim.print('vim.w.cc <- vim.wo.cc = ' .. vim.inspect(vim.wo.cc))
         vim.w.cc = vim.wo.cc
         vim.b.cc = vim.wo.cc
       end
+      vim.print('vim.go.cc <- ""')
+      vim.print('vim.wo.cc <- ""')
       vim.go.cc = ''
       vim.wo.cc = ''
     end,

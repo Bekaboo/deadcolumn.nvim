@@ -72,7 +72,7 @@ local function str_fallback(...)
 end
 
 ---Redraw the colorcolumn
-local function redraw_colorcolumn()
+local function redraw_cc()
   local cc = resolve_cc(vim.w.cc)
   if not cc then
     vim.wo.cc = ''
@@ -119,7 +119,9 @@ local function redraw_colorcolumn()
   end
 end
 
----Hide the colorcolumn
+---Initialization
+---Record and reset colorcolumn settings, ColorColumn highlight group,
+---and create autgroup
 local function init()
   local wins = vim.api.nvim_list_wins()
   for _, win in ipairs(wins) do
@@ -131,6 +133,7 @@ local function init()
   end
   vim.go.cc = ''
   store.colorcol_bg = colors.get_hl('ColorColumn', 'background')
+  vim.api.nvim_create_augroup('AutoColorColumn', { clear = true })
 end
 
 -- colorcolumn is a window-local option, with some special rules:
@@ -142,9 +145,9 @@ end
 -- 3. Once the window-local cc is set, it's not changed by the global option
 --    or inheritance, it will only change when a different buffer is displayed
 --    or the option is set explicitly (via set or setlocal)
-local function make_autocmds()
-  vim.api.nvim_create_augroup('AutoColorColumn', { clear = true })
 
+---Make autocmds to track colorcolumn settings
+local function autocmd_track_cc()
   -- Save previous window cc settings
   vim.api.nvim_create_autocmd({ 'WinLeave' }, {
     group = 'AutoColorColumn',
@@ -252,7 +255,10 @@ local function make_autocmds()
       vim.wo.cc = ''
     end,
   })
+end
 
+---Make autocmds to display colorcolumn
+local function autocmd_display_cc()
   -- Update Colorcolum background color on ColorScheme and UIEnter
   vim.api.nvim_create_autocmd({ 'ColorScheme', 'UIEnter' }, {
     group = 'AutoColorColumn',
@@ -274,13 +280,19 @@ local function make_autocmds()
     'WinEnter',
   }, {
     group = 'AutoColorColumn',
-    callback = redraw_colorcolumn,
+    callback = redraw_cc,
   })
   vim.api.nvim_create_autocmd({ 'OptionSet' }, {
     pattern = { 'colorcolumn', 'textwidth' },
     group = 'AutoColorColumn',
-    callback = redraw_colorcolumn,
+    callback = redraw_cc,
   })
+end
+
+---Make all autocmds
+local function make_autocmds()
+  autocmd_track_cc()
+  autocmd_display_cc()
 end
 
 return {

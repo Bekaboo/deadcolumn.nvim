@@ -119,6 +119,18 @@ local function redraw_cc()
   end
 end
 
+---Set to be relative to textwidth if textwidth is set
+local function set_relative_cc()
+  if not configs.user.extra.follow_tw then
+    return
+  end
+  if vim.bo.textwidth > 0 then
+    vim.w.cc = configs.user.extra.follow_tw
+  else
+    vim.w.cc = str_fallback(vim.b.cc, vim.g.cc)
+  end
+end
+
 ---Initialization
 ---Record and reset colorcolumn settings, ColorColumn highlight group,
 ---and create autgroup
@@ -289,9 +301,24 @@ local function autocmd_display_cc()
   })
 end
 
+---Make autocmds to set colorcolumn relative to textwidth
+local function autocmd_follow_tw()
+  -- Set cc to be relative to textwidth if textwidth is set
+  vim.api.nvim_create_autocmd({ 'OptionSet' }, {
+    pattern = 'textwidth',
+    group = 'AutoColorColumn',
+    callback = set_relative_cc,
+  })
+  vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
+    group = 'AutoColorColumn',
+    callback = set_relative_cc,
+  })
+end
+
 ---Make all autocmds
 local function make_autocmds()
   autocmd_track_cc()
+  autocmd_follow_tw()
   autocmd_display_cc()
 end
 

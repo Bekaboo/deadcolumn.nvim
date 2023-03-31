@@ -103,6 +103,9 @@ local opts = {
             'background',
         },
     },
+    extra = {
+        follow_tw = nil,
+    },
 }
 
 require('deadcolumn').setup(opts) -- Call the setup function
@@ -155,6 +158,18 @@ require('deadcolumn').setup(opts) -- Call the setup function
     - `hlgroup` (table): The highlight group for the warning color.
 
         - *If the highlight group is not found, `colorcode` will be used*.
+
+- `extra` (table): Extra functionalities.
+
+    - `follow_tw` (nil|string):
+
+        - If `follow_tw` is `nil`: the functionalities is disabled.
+
+        - If `follow_tw` is string: `colorcolumn` will be set to this value
+          when `textwidth` is set, and will be restored to the original value
+          when `textwidth` is unset.
+
+          Suggested value for this option is `'+1'`.
 
 ## FAQ
 

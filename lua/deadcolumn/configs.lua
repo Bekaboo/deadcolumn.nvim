@@ -15,6 +15,9 @@ M.default = {
     colorcode = '#FF0000',
     hlgroup = { 'Error', 'background' },
   },
+  extra = {
+    follow_tw = nil,
+  },
 }
 
 function M.set_options(user_opts)
@@ -53,6 +56,11 @@ function M.set_options(user_opts)
   assert(
     vim.tbl_contains({ 'foreground', 'background' }, M.user.warning.hlgroup[2]),
     'warning.hlgroup[2] must be "foreground" or "background"'
+  )
+  assert(
+    type(M.user.extra.follow_tw) == 'nil'
+      or type(M.user.extra.follow_tw) == 'string',
+    'extra.follow_tw must be nil or a string'
   )
 
   -- Preprocess

@@ -59,10 +59,13 @@ the default options, the plugin should work out of the box.
 		'background',
 	    },
 	},
+	extra = {
+	    follow_tw = nil,
+	},
     }
 <
 
-deadcolumn.setup({opts})                           *deadcolumn.options.setup()*
+deadcolumn.setup({*opts})                          *deadcolumn.options.setup()*
     Setup function to call to configure the defaults.
 
     Usage: `require('deadcolumn.setup({opts}))`
@@ -156,6 +159,22 @@ deadcolumn.setup({opts})                           *deadcolumn.options.setup()*
 
 	    The highlight group for the warning color.
 	    If the highlight group is not found, `colorcode` will be used.
+
+                                                 *deadcolumn.options.ops.extra*
+    `extra` table
+
+    	Extra functionalities.
+
+	Valid fields:
+
+	1. `follow_tw` string|nil      *deadcolumn.options.ops.extra.follow_tw*
+	    (default: nil)
+
+	    If set to a string, 'colorcolumn' will be set to this value when
+	    textwidth is set, and will restored to the original value when
+	    textwidth is unset.
+
+	    Suggested value for this option is "+1".
 
 
 ===============================================================================

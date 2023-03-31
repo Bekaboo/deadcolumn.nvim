@@ -5,7 +5,6 @@ local configs = require('deadcolumn.configs')
 local store = {
   previous_cc = '', ---@type string
   colorcol_bg = '', ---@type string
-  cc_last_set = '', ---@type string
 }
 vim.g.deadcolumn_store = store
 

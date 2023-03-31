@@ -76,7 +76,7 @@ local function redraw_colorcolumn()
   local cc = resolve_cc(vim.w.cc)
   if not cc then
     -- Save window view to prevent cursor
-    -- from being reset
+    -- from being reset.
     local winview = vim.fn.winsaveview()
     vim.wo.cc = ''
     vim.fn.winrestview(winview)
@@ -89,7 +89,7 @@ local function redraw_colorcolumn()
     thresh = math.floor(thresh * cc)
   end
   if
-      len < thresh or not vim.tbl_contains(configs.user.modes, vim.fn.mode())
+    len < thresh or not vim.tbl_contains(configs.user.modes, vim.fn.mode())
   then
     local winview = vim.fn.winsaveview()
     vim.wo.cc = ''

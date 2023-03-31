@@ -75,7 +75,11 @@ end
 local function redraw_colorcolumn()
   local cc = resolve_cc(vim.w.cc)
   if not cc then
-    vim.wo.cc = ''
+    -- Only set vim.wo.cc when necessary,
+    -- prevent cursor position from being reset.
+    if vim.wo.cc ~= '' then
+      vim.wo.cc = ''
+    end
     return
   end
 
@@ -87,11 +91,15 @@ local function redraw_colorcolumn()
   if
     len < thresh or not vim.tbl_contains(configs.user.modes, vim.fn.mode())
   then
-    vim.wo.cc = ''
+    if vim.wo.cc ~= '' then
+      vim.wo.cc = ''
+    end
     return
   end
 
-  vim.wo.cc = vim.w.cc
+  if vim.wo.cc ~= vim.w.cc then
+    vim.wo.cc = vim.w.cc
+  end
 
   -- Show blended color when len < cc
   local normal_bg = colors.get_hl(

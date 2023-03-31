@@ -5,7 +5,9 @@ local configs = require('deadcolumn.configs')
 local store = {
   previous_cc = '', ---@type string
   colorcol_bg = '', ---@type string
+  cc_last_set = '', ---@type string
 }
+vim.g.deadcolumn_store = store
 
 -- Functions to get the line length for different scopes
 local scope_len_fn = {
@@ -120,8 +122,11 @@ local function redraw_cc()
 end
 
 ---Set to be relative to textwidth if textwidth is set
-local function set_relative_cc()
+local function set_relative_cc(tbl)
   if not configs.user.extra.follow_tw then
+    return
+  end
+  if tbl.event == 'BufWinEnter' and vim.b._cc_last_set_by == 'modeline' then
     return
   end
   if vim.bo.textwidth > 0 then
@@ -236,6 +241,9 @@ local function autocmd_track_cc()
     callback = function()
       vim.b.cc = str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)
       vim.w.cc = str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)
+      if vim.b.cc == vim.wo.cc then
+        vim.b._cc_last_set_by = 'modeline'
+      end
       if not vim.tbl_contains(configs.user.modes, vim.fn.mode()) then
         vim.wo.cc = ''
       end

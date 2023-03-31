@@ -1,3 +1,4 @@
+-- stylua: ignore start
 local todec = {
   ['0'] = 0,
   ['1'] = 1,
@@ -35,6 +36,7 @@ local tohex = {
   [14] = 'E',
   [15] = 'F',
 }
+-- stylua: ignore end
 
 ---Convert an integer from hexadecimal to decimal
 ---@param hex string
@@ -44,7 +46,7 @@ local function hex2dec(hex)
   local dec = 0
 
   while digit <= #hex do
-    dec = dec + todec[string.sub(hex, digit, digit)] * 16^(#hex - digit)
+    dec = dec + todec[string.sub(hex, digit, digit)] * 16 ^ (#hex - digit)
     digit = digit + 1
   end
 

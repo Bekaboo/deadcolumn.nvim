@@ -165,9 +165,9 @@ require('deadcolumn').setup(opts) -- Call the setup function
 
         - If `follow_tw` is `nil`: the functionalities is disabled.
 
-        - If `follow_tw` is string: `colorcolumn` will be set to this
-          value when `textwidth` is set, and will be restore to the original
-          value when `textwidth` is unset.
+        - If `follow_tw` is string: `colorcolumn` will be set to this value
+          when `textwidth` is set, and will be restored to the original value
+          when `textwidth` is unset.
 
           Suggested value for this option is `'+1'`.
 

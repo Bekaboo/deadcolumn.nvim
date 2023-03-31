@@ -71,15 +71,23 @@ local function str_fallback(...)
   return nil
 end
 
+---Set a window-local option safely without changing the window view
+---@param win integer window handle, 0 for current window
+---@param name string option name
+---@param value any option value
+local function win_safe_set_option(win, name, value)
+  local winview = vim.fn.winsaveview()
+  vim.wo[win][name] = value
+  vim.fn.winrestview(winview)
+end
+
 ---Redraw the colorcolumn
 local function redraw_colorcolumn()
   local cc = resolve_cc(vim.w.cc)
   if not cc then
-    -- Only set vim.wo.cc when necessary,
-    -- prevent cursor position from being reset.
-    if vim.wo.cc ~= '' then
-      vim.wo.cc = ''
-    end
+    -- Save window view to prevent cursor
+    -- from being reset.
+    win_safe_set_option(0, 'cc', '')
     return
   end
 
@@ -91,15 +99,11 @@ local function redraw_colorcolumn()
   if
     len < thresh or not vim.tbl_contains(configs.user.modes, vim.fn.mode())
   then
-    if vim.wo.cc ~= '' then
-      vim.wo.cc = ''
-    end
+    win_safe_set_option(0, 'cc', '')
     return
   end
 
-  if vim.wo.cc ~= vim.w.cc then
-    vim.wo.cc = vim.w.cc
-  end
+  win_safe_set_option(0, 'cc', vim.w.cc)
 
   -- Show blended color when len < cc
   local normal_bg = colors.get_hl(
@@ -158,7 +162,7 @@ local function make_autocmds()
     group = 'AutoColorColumn',
     callback = function()
       store.previous_cc = vim.w.cc
-      vim.wo.cc = ''
+      win_safe_set_option(0, 'cc', '')
     end,
   })
 
@@ -221,7 +225,7 @@ local function make_autocmds()
   vim.api.nvim_create_autocmd({ 'BufLeave' }, {
     group = 'AutoColorColumn',
     callback = function()
-      vim.wo.cc = ''
+      win_safe_set_option(0, 'cc', '')
     end,
   })
   vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
@@ -230,7 +234,7 @@ local function make_autocmds()
       vim.b.cc = str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)
       vim.w.cc = str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)
       if not vim.tbl_contains(configs.user.modes, vim.fn.mode()) then
-        vim.wo.cc = ''
+        win_safe_set_option(0, 'cc', '')
       end
     end,
   })
@@ -257,7 +261,7 @@ local function make_autocmds()
         vim.b.cc = vim.wo.cc
       end
       vim.go.cc = ''
-      vim.wo.cc = ''
+      win_safe_set_option(0, 'cc', '')
     end,
   })
 

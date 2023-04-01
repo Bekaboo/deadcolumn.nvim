@@ -92,14 +92,17 @@ local function redraw_cc()
     return
   end
 
+  if not vim.tbl_contains(configs.user.modes, vim.fn.mode()) then
+    win_safe_set_option(0, 'cc', '')
+    return
+  end
+
   local len = scope_len_fn[configs.user.scope]()
   local thresh = configs.user.blending.threshold
   if 0 < thresh and thresh <= 1 then
     thresh = math.floor(thresh * cc)
   end
-  if
-    len < thresh or not vim.tbl_contains(configs.user.modes, vim.fn.mode())
-  then
+  if len < thresh then
     win_safe_set_option(0, 'cc', '')
     return
   end

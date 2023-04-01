@@ -239,7 +239,7 @@ local function autocmd_track_cc()
   -- 1. If vim.wo.cc is non empty, then it is set from a modeline, use it.
   --    Notice that this is after the 'FileType' event, which applies ftplugin
   --    settings
-  -- 2. If vim.b.cc if non empty, it is set previously by broadcasting or an
+  -- 2. If vim.b.cc is non empty, it is set previously by broadcasting or an
   --    ftplugin, use it
   -- 3. Else use vim.g.cc
   -- We want to unset vim.wo.cc on leaving a buffer, so that vim.wo.cc reflects

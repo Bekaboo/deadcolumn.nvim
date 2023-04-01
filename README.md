@@ -246,7 +246,7 @@ There are mainly two ways to set `colorcolumn` for different filetypes:
 If you are using a transparent background, the colored column may not be
 displayed properly, since the background color of the colored column
 dynamically changed based on the blending of `'Normal'` background color and
-the orignial `'CoolorColumn'` background color.
+the orignial `'ColorColumn'` background color.
 
 If Deadcolumn cannot find the `'Normal'` background color, it will use
 `'#000000'` (pure black) as the default background color for blending.

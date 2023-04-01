@@ -151,8 +151,8 @@ local function set_relative_cc(tbl)
 end
 
 ---Initialization
----Record and reset colorcolumn settings, ColorColumn highlight group,
----and create autgroup
+---Record & reset colorcolumn settings for each window,
+---and save the background color of hl-ColorColumn
 local function init()
   local wins = vim.api.nvim_list_wins()
   for _, win in ipairs(wins) do
@@ -164,7 +164,6 @@ local function init()
   end
   vim.go.cc = ''
   store.colorcol_bg = colors.get_hl('ColorColumn', 'background')
-  vim.api.nvim_create_augroup('AutoColorColumn', { clear = true })
 end
 
 -- colorcolumn is a window-local option, with some special rules:
@@ -339,6 +338,7 @@ end
 
 ---Make all autocmds
 local function make_autocmds()
+  vim.api.nvim_create_augroup('AutoColorColumn', {})
   autocmd_track_cc()
   autocmd_follow_tw()
   autocmd_display_cc()

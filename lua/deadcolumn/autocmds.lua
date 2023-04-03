@@ -92,13 +92,13 @@ local function redraw_cc()
     return
   end
 
-  if not vim.tbl_contains(configs.user.modes, vim.fn.mode()) then
+  if not vim.tbl_contains(configs.opts.modes, vim.fn.mode()) then
     win_safe_set_option(0, 'cc', '')
     return
   end
 
-  local len = scope_len_fn[configs.user.scope]()
-  local thresh = configs.user.blending.threshold
+  local len = scope_len_fn[configs.opts.scope]()
+  local thresh = configs.opts.blending.threshold
   if 0 < thresh and thresh <= 1 then
     thresh = math.floor(thresh * cc)
   end
@@ -111,9 +111,9 @@ local function redraw_cc()
 
   -- Show blended color when len < cc
   local normal_bg = colors.get_hl(
-    configs.user.blending.hlgroup[1],
-    configs.user.blending.hlgroup[2],
-    configs.user.blending.colorcode
+    configs.opts.blending.hlgroup[1],
+    configs.opts.blending.hlgroup[2],
+    configs.opts.blending.colorcode
   )
   if len < cc then
     vim.api.nvim_set_hl(0, 'ColorColumn', {
@@ -125,26 +125,26 @@ local function redraw_cc()
     })
   else -- Show error color when len >= cc
     local warning_color = colors.get_hl(
-      configs.user.warning.hlgroup[1],
-      configs.user.warning.hlgroup[2],
-      configs.user.warning.colorcode
+      configs.opts.warning.hlgroup[1],
+      configs.opts.warning.hlgroup[2],
+      configs.opts.warning.colorcode
     )
     vim.api.nvim_set_hl(0, 'ColorColumn', {
-      bg = colors.blend(warning_color, normal_bg, configs.user.warning.alpha),
+      bg = colors.blend(warning_color, normal_bg, configs.opts.warning.alpha),
     })
   end
 end
 
 ---Set to be relative to textwidth if textwidth is set
 local function set_relative_cc(tbl)
-  if not configs.user.extra.follow_tw then
+  if not configs.opts.extra.follow_tw then
     return
   end
   if tbl.event == 'BufWinEnter' and vim.b._cc_last_set_by == 'modeline' then
     return
   end
   if vim.bo.textwidth > 0 then
-    vim.w.cc = configs.user.extra.follow_tw
+    vim.w.cc = configs.opts.extra.follow_tw
   else
     vim.w.cc = str_fallback(vim.b.cc, vim.g.cc)
   end
@@ -257,7 +257,7 @@ local function autocmd_track_cc()
       if vim.b.cc == vim.wo.cc then
         vim.b._cc_last_set_by = 'modeline'
       end
-      if not vim.tbl_contains(configs.user.modes, vim.fn.mode()) then
+      if not vim.tbl_contains(configs.opts.modes, vim.fn.mode()) then
         win_safe_set_option(0, 'cc', '')
       end
     end,

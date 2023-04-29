@@ -12,6 +12,7 @@ M.opts = {
   },
   warning = {
     alpha = 0.4,
+    offset = 0,
     colorcode = '#FF0000',
     hlgroup = { 'Error', 'background' },
   },
@@ -49,6 +50,11 @@ function M.set_options(user_opts)
   )
   assert(M.opts.warning.alpha >= 0, 'warning.alpha must be >= 0')
   assert(M.opts.warning.alpha <= 1, 'warning.alpha must be <= 1')
+  assert(
+    type(M.opts.warning.offset) == 'number'
+      and math.floor(M.opts.warning.offset) == M.opts.warning.offset,
+    'warning.offset must be an integer'
+  )
   assert(
     M.opts.warning.colorcode:match('^#?%x%x%x%x%x%x$'),
     'warning.colorcode must be a 6-digit hex color code'

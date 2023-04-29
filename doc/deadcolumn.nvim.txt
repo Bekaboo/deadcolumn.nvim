@@ -53,6 +53,7 @@ the default options, the plugin should work out of the box.
 	},
 	warning = {
 	    alpha = 0.4,
+	    offset = 0,
 	    colorcode = '#FF0000',
 	    hlgroup = {
 		'Error',
@@ -149,12 +150,20 @@ deadcolumn.setup({*opts})                         *deadcolumn.options.setup()*
 	    Alpha value for the warning color, blended with the background
 	    color.
 
-	2. `colorcode` string       *deadcolumn.options.ops.warning.colorcode*
+	2. `offset` number            *deadcolumn.options.opts.warning.offset*
+	    (default: 0)
+
+        The offset for showing the colorcolumn in warning color.
+
+	Warning color will be shown when the length of the line exceeds
+	'colorcolumn' by `offset` characters.
+
+	3. `colorcode` string       *deadcolumn.options.ops.warning.colorcode*
 	     (default: "#FF0000")
 
 	    Color code for the warning color.
 
-	3. `hlgroup` table            *deadcolumn.options.ops.warning.hlgroup*
+	4. `hlgroup` table            *deadcolumn.options.ops.warning.hlgroup*
 	     (default: { "Error", "background" })
 
 	    The highlight group for the warning color.

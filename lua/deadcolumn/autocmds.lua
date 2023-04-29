@@ -115,7 +115,7 @@ local function redraw_cc()
     configs.opts.blending.hlgroup[2],
     configs.opts.blending.colorcode
   )
-  if len < cc then
+  if len < cc + configs.opts.warning.offset then
     vim.api.nvim_set_hl(0, 'ColorColumn', {
       bg = colors.blend(
         store.colorcol_bg,
@@ -123,7 +123,7 @@ local function redraw_cc()
         (len - thresh) / (cc - thresh)
       ),
     })
-  else -- Show error color when len >= cc
+  else -- Show error color when len >= cc + offset
     local warning_color = colors.get_hl(
       configs.opts.warning.hlgroup[1],
       configs.opts.warning.hlgroup[2],

@@ -97,6 +97,7 @@ local opts = {
     },
     warning = {
         alpha = 0.4,
+        offset = 0,
         colorcode = '#FF0000',
         hlgroup = {
             'Error',
@@ -152,6 +153,10 @@ require('deadcolumn').setup(opts) -- Call the setup function
 
     - `alpha` (number): The alpha value for the warning color, blended with the
       background color.
+
+    - `offset` (number): The offset for the warning color, the warning color
+      will be shown when the length of the line exceeds `colorcolumn` by
+      `offset` characters.
 
     - `colorcode` (string): The color code for the warning color.
 

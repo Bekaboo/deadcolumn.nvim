@@ -33,8 +33,12 @@ function M.set_options(user_opts)
   end
   assert(vim.tbl_islist(M.opts.modes), 'modes must be a list of strings')
   assert(
-    vim.tbl_contains({ 'line', 'buffer', 'visible', 'cursor' }, M.opts.scope),
-    'scope must be one of "line", "buffer", "visible", "cursor"'
+    type(M.opts.scope) == 'function'
+      or vim.tbl_contains(
+        { 'line', 'buffer', 'visible', 'cursor' },
+        M.opts.scope
+      ),
+    'scope must be a function or one of "line", "buffer", "visible", "cursor"'
   )
   assert(M.opts.blending.threshold >= 0, 'blending.threshold must be >= 0')
   assert(

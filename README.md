@@ -112,8 +112,8 @@ local opts = {
 require('deadcolumn').setup(opts) -- Call the setup function
 ```
 
-- `scope` (string): The scope for showing the colored column, there are several
-  possible values:
+- `scope` (string|function): The scope for showing the colored column, there
+  are several possible values:
 
     - `'line'`: colored column will be shown based on the length of the current
       line.
@@ -126,6 +126,24 @@ require('deadcolumn').setup(opts) -- Call the setup function
 
     - `'cursor'`: colored column will be shown based on current cursor
       position.
+
+    - function() -> number: callback function that returns a number as the
+      length of the row. For example, to show the colored column based on the
+      longest line in the nearby 100 lines:
+
+      ```lua
+        require('deadcolumn').setup({
+        scope = function()
+            local max = 0
+            for i = -50, 50 do
+            local len = vim.fn.strdisplaywidth(vim.fn.getline(vim.fn.line('.') + i))
+            if len > max then
+                max = len
+            end
+            return max
+        end
+        })
+      ```
 
 - `modes` (table): In which modes to show the colored column.
 

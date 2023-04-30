@@ -97,7 +97,9 @@ local function redraw_cc()
     return
   end
 
-  local len = scope_len_fn[configs.opts.scope]()
+  local len = type(configs.opts.scope) == 'string'
+      and scope_len_fn[configs.opts.scope]()
+    or configs.opts.scope()
   local thresh = configs.opts.blending.threshold
   if 0 < thresh and thresh <= 1 then
     thresh = math.floor(thresh * cc)

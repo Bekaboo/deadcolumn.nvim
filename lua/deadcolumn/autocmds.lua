@@ -1,15 +1,15 @@
 local colors = require('deadcolumn.colors')
 local configs = require('deadcolumn.configs')
+local utils = require('deadcolumn.utils')
 
 -- Store shared data
 local store = {
   previous_cc = '', ---@type string
   colorcol_bg = '', ---@type string
 }
-vim.g.deadcolumn_store = store
 
 -- Functions to get the line length for different scopes
-local scope_len_fn = {
+local scope_fn = {
   line = function()
     return vim.fn.strdisplaywidth(vim.api.nvim_get_current_line())
   end,
@@ -38,78 +38,50 @@ local scope_len_fn = {
   end,
 }
 
----Resolve the colorcolumn value
----@param cc string|nil
----@return integer|nil cc_number smallest integer >= 0 or nil
-local function resolve_cc(cc)
-  if not cc or cc == '' then
-    return nil
+---Set to be relative to textwidth if textwidth is set
+---@param info table event info
+local function set_relative_cc(info)
+  if not configs.opts.extra.follow_tw then
+    return
   end
-  local cc_tbl = vim.split(cc, ',')
-  local cc_min = nil
-  for _, cc_str in ipairs(cc_tbl) do
-    local cc_number = tonumber(cc_str)
-    if vim.startswith(cc_str, '+') or vim.startswith(cc_str, '-') then
-      cc_number = vim.bo.tw > 0 and vim.bo.tw + cc_number or nil
-    end
-    if cc_number and cc_number > 0 and (not cc_min or cc_number < cc_min) then
-      cc_min = cc_number
-    end
+  if info.event == 'BufWinEnter' and vim.b._cc_last_set_by == 'modeline' then
+    return
   end
-  return cc_min
-end
-
----Fallback to the first non-empty string
----@vararg string
----@return string|nil
-local function str_fallback(...)
-  local args = { ... }
-  for _, arg in pairs(args) do
-    if type(arg) == 'string' and arg ~= '' then
-      return arg
-    end
+  if vim.bo.textwidth > 0 then
+    vim.w.cc = configs.opts.extra.follow_tw
+  else
+    vim.w.cc = utils.str_fallback(vim.b.cc, vim.g.cc)
   end
-  return nil
-end
-
----Set a window-local option safely without changing the window view
----@param win integer window handle, 0 for current window
----@param name string option name
----@param value any option value
-local function win_safe_set_option(win, name, value)
-  local winview = vim.fn.winsaveview()
-  vim.wo[win][name] = value
-  vim.fn.winrestview(winview)
 end
 
 ---Redraw the colorcolumn
 local function redraw_cc()
-  local cc = resolve_cc(vim.w.cc)
+  local cc = utils.resolve_cc(vim.w.cc)
   if not cc then
     -- Save window view to prevent cursor
     -- from being reset.
-    win_safe_set_option(0, 'cc', '')
+    utils.win_safe_set_option(0, 'cc', '')
     return
   end
 
   if not vim.tbl_contains(configs.opts.modes, vim.fn.mode()) then
-    win_safe_set_option(0, 'cc', '')
+    utils.win_safe_set_option(0, 'cc', '')
     return
   end
 
   local len = type(configs.opts.scope) == 'string'
-      and scope_len_fn[configs.opts.scope]()
+      and scope_fn[configs.opts.scope]()
     or configs.opts.scope()
   local thresh = configs.opts.blending.threshold
   if 0 < thresh and thresh <= 1 then
     thresh = math.floor(thresh * cc)
   end
   if len < thresh then
-    win_safe_set_option(0, 'cc', '')
+    utils.win_safe_set_option(0, 'cc', '')
     return
   end
 
-  win_safe_set_option(0, 'cc', vim.w.cc)
+  utils.win_safe_set_option(0, 'cc', vim.w.cc)
 
   -- Show blended color when len < cc
   local normal_bg = colors.get_hl(
@@ -134,21 +106,6 @@ local function redraw_cc()
     vim.api.nvim_set_hl(0, 'ColorColumn', {
       bg = colors.blend(warning_color, normal_bg, configs.opts.warning.alpha),
     })
-  end
-end
-
----Set to be relative to textwidth if textwidth is set
-local function set_relative_cc(tbl)
-  if not configs.opts.extra.follow_tw then
-    return
-  end
-  if tbl.event == 'BufWinEnter' and vim.b._cc_last_set_by == 'modeline' then
-    return
-  end
-  if vim.bo.textwidth > 0 then
-    vim.w.cc = configs.opts.extra.follow_tw
-  else
-    vim.w.cc = str_fallback(vim.b.cc, vim.g.cc)
   end
 end
 
@@ -179,21 +136,22 @@ end
 --    or the option is set explicitly (via set or setlocal)
 
 ---Make autocmds to track colorcolumn settings
-local function autocmd_track_cc()
+---@param group number autocmd group id
+local function autocmd_track_cc(group)
   -- Save previous window cc settings
   vim.api.nvim_create_autocmd({ 'WinLeave' }, {
-    group = 'AutoColorColumn',
+    group = group,
     callback = function()
       store.previous_cc = vim.w.cc
-      win_safe_set_option(0, 'cc', '')
+      utils.win_safe_set_option(0, 'cc', '')
     end,
   })
 
   -- Broadcast previous window or global cc settings to new windows
   vim.api.nvim_create_autocmd({ 'WinNew' }, {
-    group = 'AutoColorColumn',
+    group = group,
     callback = function()
-      vim.w.cc = str_fallback(store.previous_cc, vim.g.cc)
+      vim.w.cc = utils.str_fallback(store.previous_cc, vim.g.cc)
     end,
   })
 
@@ -213,14 +171,14 @@ local function autocmd_track_cc()
   -- prefer the vimscript way, I simulate its behavior here when a change is
   -- detected for cc in current window.
   vim.api.nvim_create_autocmd({ 'BufReadPre' }, {
-    group = 'AutoColorColumn',
+    group = group,
     callback = function()
       vim.b._cc = vim.wo.cc
       vim.g._cc = vim.go.cc
     end,
   })
   vim.api.nvim_create_autocmd({ 'FileType' }, {
-    group = 'AutoColorColumn',
+    group = group,
     callback = function()
       -- If cc changes between BufReadPre and FileType, it is an ftplugin
       -- that sets cc, so we accept it as a 'buffer-local' (phony) cc setting
@@ -246,36 +204,36 @@ local function autocmd_track_cc()
   -- We want to unset vim.wo.cc on leaving a buffer, so that vim.wo.cc reflects
   -- changes from modelines
   vim.api.nvim_create_autocmd({ 'BufLeave' }, {
-    group = 'AutoColorColumn',
+    group = group,
     callback = function()
-      win_safe_set_option(0, 'cc', '')
+      utils.win_safe_set_option(0, 'cc', '')
     end,
   })
   vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
-    group = 'AutoColorColumn',
+    group = group,
     callback = function()
-      vim.b.cc = str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)
-      vim.w.cc = str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)
+      vim.b.cc = utils.str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)
+      vim.w.cc = utils.str_fallback(vim.wo.cc, vim.b.cc, vim.g.cc)
       if vim.b.cc == vim.wo.cc then
         vim.b._cc_last_set_by = 'modeline'
       end
       if not vim.tbl_contains(configs.opts.modes, vim.fn.mode()) then
-        win_safe_set_option(0, 'cc', '')
+        utils.win_safe_set_option(0, 'cc', '')
       end
     end,
   })
 
   -- Save cc settings for each window
   vim.api.nvim_create_autocmd({ 'WinEnter' }, {
-    group = 'AutoColorColumn',
+    group = group,
     callback = function()
-      vim.w.cc = str_fallback(vim.w.cc, vim.wo.cc)
+      vim.w.cc = utils.str_fallback(vim.w.cc, vim.wo.cc)
     end,
   })
 
   -- Update cc settings on option change
   vim.api.nvim_create_autocmd({ 'OptionSet' }, {
-    group = 'AutoColorColumn',
+    group = group,
     pattern = 'colorcolumn',
     callback = function()
       if vim.v.option_type == 'global' then
@@ -287,16 +245,17 @@ local function autocmd_track_cc()
         vim.b.cc = vim.wo.cc
       end
       vim.go.cc = ''
-      win_safe_set_option(0, 'cc', '')
+      utils.win_safe_set_option(0, 'cc', '')
     end,
   })
 end
 
 ---Make autocmds to display colorcolumn
-local function autocmd_display_cc()
+---@param group number autocmd group id
+local function autocmd_display_cc(group)
   -- Update Colorcolum background color on ColorScheme
   vim.api.nvim_create_autocmd({ 'ColorScheme' }, {
-    group = 'AutoColorColumn',
+    group = group,
     callback = function()
       store.colorcol_bg = colors.get_hl('ColorColumn', 'background')
     end,
@@ -314,36 +273,37 @@ local function autocmd_display_cc()
     'BufWinEnter',
     'WinEnter',
   }, {
-    group = 'AutoColorColumn',
+    group = group,
     callback = redraw_cc,
   })
   vim.api.nvim_create_autocmd({ 'OptionSet' }, {
     pattern = { 'colorcolumn', 'textwidth' },
-    group = 'AutoColorColumn',
+    group = group,
     callback = redraw_cc,
   })
 end
 
 ---Make autocmds to set colorcolumn relative to textwidth
-local function autocmd_follow_tw()
+---@param group number augroup id
+local function autocmd_follow_tw(group)
   -- Set cc to be relative to textwidth if textwidth is set
   vim.api.nvim_create_autocmd({ 'OptionSet' }, {
     pattern = 'textwidth',
-    group = 'AutoColorColumn',
+    group = group,
     callback = set_relative_cc,
   })
   vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
-    group = 'AutoColorColumn',
+    group = group,
     callback = set_relative_cc,
   })
 end
 
 ---Make all autocmds
 local function make_autocmds()
-  vim.api.nvim_create_augroup('AutoColorColumn', {})
-  autocmd_track_cc()
-  autocmd_follow_tw()
-  autocmd_display_cc()
+  local group = vim.api.nvim_create_augroup('AutoColorColumn', {})
+  autocmd_track_cc(group)
+  autocmd_follow_tw(group)
+  autocmd_display_cc(group)
 end
 
 return {

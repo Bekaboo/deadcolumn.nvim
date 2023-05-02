@@ -45,7 +45,21 @@ local function resolve_cc(cc)
   return cc_min
 end
 
+---Check if the current mode is in the correct mode
+---@param mode string
+---@return boolean
+local function is_in_correct_mode(mode)
+  if type(configs.opts.modes) == 'function' then
+    return configs.opts.modes(mode)
+  elseif type(configs.opts.modes) == 'table' then
+    return vim.tbl_contains(configs.opts.modes, mode)
+  else
+    return false
+  end
+end
+
 return {
+  is_in_correct_mode = is_in_correct_mode,
   resolve_cc = resolve_cc,
   str_fallback = str_fallback,
   win_safe_set_option = win_safe_set_option,

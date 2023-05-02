@@ -120,10 +120,16 @@ deadcolumn.setup({*opts})                         *deadcolumn.options.setup()*
 <
 
                                                 *deadcolumn.options.ops.modes*
-    `modes` table
+    `modes` table|function(string)->boolean
 	(default: { "i", "ic", "ix", "R", "Rc", "Rx", "Rv", "Rvc", "Rvx" })
 
 	In which modes to show the colored column.
+
+	If `modes` is a table, it should contain a list of modes in which to
+	show the colored column. See |mode()|
+
+	If `modes` is a function, it accepts a string as the current mode, and
+	return a boolean value indicating whether to show the colored column.
 
                                              *deadcolumn.options.ops.blending*
     `blending` table

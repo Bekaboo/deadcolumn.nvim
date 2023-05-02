@@ -146,7 +146,13 @@ require('deadcolumn').setup(opts) -- Call the setup function
         })
       ```
 
-- `modes` (table): In which modes to show the colored column.
+- `modes` (table|function): In which modes to show the colored column.
+
+    - If `modes` is a table, it should contain a list of mode names
+
+    - If `modes` is a function, it should accept a string as the mode name and
+      return a boolean value indicating whether to show the colored column in
+      that mode.
 
 - `blending` (table): Blending options.
 

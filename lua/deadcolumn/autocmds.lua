@@ -64,7 +64,7 @@ local function redraw_cc()
     return
   end
 
-  if not vim.tbl_contains(configs.opts.modes, vim.fn.mode()) then
+  if not utils.is_in_correct_mode(vim.fn.mode()) then
     utils.win_safe_set_option(0, 'cc', '')
     return
   end
@@ -217,7 +217,7 @@ local function autocmd_track_cc(group)
       if vim.b.cc == vim.wo.cc then
         vim.b._cc_last_set_by = 'modeline'
       end
-      if not vim.tbl_contains(configs.opts.modes, vim.fn.mode()) then
+      if not utils.is_in_correct_mode(vim.fn.mode()) then
         utils.win_safe_set_option(0, 'cc', '')
       end
     end,

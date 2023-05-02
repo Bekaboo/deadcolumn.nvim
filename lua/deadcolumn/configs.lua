@@ -31,7 +31,10 @@ function M.set_options(user_opts)
     )
     M.opts.blending.threshold = M.opts.threshold
   end
-  assert(vim.tbl_islist(M.opts.modes), 'modes must be a list of strings')
+  assert(
+    type(M.opts.modes) == 'function' or vim.tbl_islist(M.opts.modes),
+    'modes must be a function or a list of strings'
+  )
   assert(
     type(M.opts.scope) == 'function'
       or vim.tbl_contains(

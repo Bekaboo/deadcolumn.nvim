@@ -58,19 +58,19 @@ keep their code aligned within a specific column range.
 
 - Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
-```lua
-lua require('lazy').setup({
-    { 'Bekaboo/deadcolumn.nvim' }
-})
-```
+    ```lua
+    lua require('lazy').setup({
+        { 'Bekaboo/deadcolumn.nvim' }
+    })
+    ```
 
 - Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
-```lua
-require('packer').startup(function(use)
-    use 'Bekaboo/deadcolumn.nvim'
-end)
-```
+    ```lua
+    require('packer').startup(function(use)
+        use 'Bekaboo/deadcolumn.nvim'
+    end)
+    ```
 
 ## Options
 

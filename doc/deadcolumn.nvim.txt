@@ -74,7 +74,7 @@ deadcolumn.setup({*opts})                         *deadcolumn.options.setup()*
     Valid keys for {opts}
 
                                                *deadcolumn.options.opts.scope*
-    `scope` string (default "line")
+    `scope` string|function (default "line")
 
 	The scope for showing the colored column.
 
@@ -99,11 +99,37 @@ deadcolumn.setup({*opts})                         *deadcolumn.options.setup()*
 
 	    Colored column will be shown based on current cursor position.
 
+	5. function() -> number
+
+	    Callback function that returns a number as the length of the
+	    row. For example, to show the colored column based on the longest
+            line in the nearby 100 lines: >lua
+
+	    require('deadcolumn').setup({
+		scope = function()
+		    local max = 0
+		    for i = -50, 50 do
+			local len = vim.fn.strdisplaywidth(vim.fn.getline(vim.fn.line('.') + i))
+			if len > max then
+			    max = len
+			end
+		    end
+		    return max
+		end
+	    })
+<
+
                                                 *deadcolumn.options.ops.modes*
-    `modes` table
+    `modes` table|function(string)->boolean
 	(default: { "i", "ic", "ix", "R", "Rc", "Rx", "Rv", "Rvc", "Rvx" })
 
 	In which modes to show the colored column.
+
+	If `modes` is a table, it should contain a list of modes in which to
+	show the colored column. See |mode()|
+
+	If `modes` is a function, it accepts a string as the current mode, and
+	return a boolean value indicating whether to show the colored column.
 
                                              *deadcolumn.options.ops.blending*
     `blending` table

@@ -1,5 +1,7 @@
 local configs = require('deadcolumn.configs')
 local autocmds = require('deadcolumn.autocmds')
+local colors = require('deadcolumn.colors')
+local utils = require('deadcolumn.utils')
 
 ---Setup function
 ---@param opts ColorColumnOptions
@@ -14,4 +16,7 @@ end
 
 return {
   setup = setup,
+  configs = configs,
+  colors = colors,
+  utils = utils,
 }

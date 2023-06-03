@@ -24,13 +24,6 @@ M.opts = {
 function M.set_options(user_opts)
   M.opts = vim.tbl_deep_extend('force', M.opts, user_opts or {})
   -- Sanity check
-  if M.opts.threshold then
-    vim.notify(
-      '[deadcolumn] opts.threshold is deprecated and will be removed by 2023-06, use opts.blending.threshold instead',
-      vim.log.levels.WARN
-    )
-    M.opts.blending.threshold = M.opts.threshold
-  end
   assert(
     type(M.opts.modes) == 'function' or vim.tbl_islist(M.opts.modes),
     'modes must be a function or a list of strings'

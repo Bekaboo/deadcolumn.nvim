@@ -281,10 +281,7 @@ a transparent background color for a specific character.
    require('deadcolumn').setup({
        blending = {
            colorcode = '#1F2430',
-           hlgroup = {
-               'NonText',
-               'background',
-           },
+           hlgroup = { 'NonText', 'bg' },
        },
    })
    ```

@@ -4,19 +4,23 @@ local M = {}
 ---@class ColorColumnOptions
 M.opts = {
   scope = 'line',
-  modes = { 'i', 'ic', 'ix', 'R', 'Rc', 'Rx', 'Rv', 'Rvc', 'Rvx' },
+  ---@type string[]|fun(mode: string): boolean
+  modes = function(mode)
+    return mode:find('^[ictRss\x13]') ~= nil
+  end,
   blending = {
     threshold = 0.75,
     colorcode = '#000000',
-    hlgroup = { 'Normal', 'background' },
+    hlgroup = { 'Normal', 'bg' },
   },
   warning = {
     alpha = 0.4,
     offset = 0,
     colorcode = '#FF0000',
-    hlgroup = { 'Error', 'background' },
+    hlgroup = { 'Error', 'bg' },
   },
   extra = {
+    ---@type string?
     follow_tw = nil,
   },
 }
@@ -25,7 +29,9 @@ function M.set_options(user_opts)
   M.opts = vim.tbl_deep_extend('force', M.opts, user_opts or {})
   -- Sanity check
   assert(
-    type(M.opts.modes) == 'function' or vim.tbl_islist(M.opts.modes),
+    type(M.opts.modes) == 'function'
+      or type(M.opts.modes) == 'table'
+        and vim.tbl_islist(M.opts.modes --[[@as table]]),
     'modes must be a function or a list of strings'
   )
   assert(
@@ -43,10 +49,10 @@ function M.set_options(user_opts)
   )
   assert(
     vim.tbl_contains(
-      { 'foreground', 'background' },
+      { 'foreground', 'background', 'fg', 'bg' },
       M.opts.blending.hlgroup[2]
     ),
-    'blending.hlgroup[2] must be "foreground" or "background"'
+    'blending.hlgroup[2] must be "foreground"/"fg" or "background"/"bg"'
   )
   assert(M.opts.warning.alpha >= 0, 'warning.alpha must be >= 0')
   assert(M.opts.warning.alpha <= 1, 'warning.alpha must be <= 1')
@@ -60,8 +66,11 @@ function M.set_options(user_opts)
     'warning.colorcode must be a 6-digit hex color code'
   )
   assert(
-    vim.tbl_contains({ 'foreground', 'background' }, M.opts.warning.hlgroup[2]),
-    'warning.hlgroup[2] must be "foreground" or "background"'
+    vim.tbl_contains(
+      { 'foreground', 'background', 'fg', 'bg' },
+      M.opts.warning.hlgroup[2]
+    ),
+    'warning.hlgroup[2] must be "foreground"/"fg" or "background"/"bg"'
   )
   assert(
     type(M.opts.extra.follow_tw) == 'nil'
@@ -70,8 +79,16 @@ function M.set_options(user_opts)
   )
 
   -- Preprocess
-  M.opts.blending.colorcode = M.opts.blending.colorcode:upper()
-  M.opts.warning.colorcode = M.opts.warning.colorcode:upper()
+  -- For compatibility, 'foreground'/'background' may be provided as field name
+  -- of hlgroup attributes. These field names come from the return value of
+  -- `nvim_get_hl_by_name()`, which is now deprecated. New api `nvim_get_hl`
+  -- returns hlgroup attributes with field names 'fg'/'bg' instead.
+  M.opts.blending.hlgroup[2] = M.opts.blending.hlgroup[2]
+    :gsub('^foreground$', 'fg')
+    :gsub('^background$', 'bg')
+  M.opts.warning.hlgroup[2] = M.opts.warning.hlgroup[2]
+    :gsub('^foreground$', 'fg')
+    :gsub('^background$', 'bg')
 end
 
 return M

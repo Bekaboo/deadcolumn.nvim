@@ -86,25 +86,23 @@ function to override the default options.
 ```lua
 local opts = {
     scope = 'line',
-    modes = { 'i', 'ic', 'ix', 'R', 'Rc', 'Rx', 'Rv', 'Rvc', 'Rvx' },
+    ---@type string[]|fun(mode: string): boolean
+    modes = function(mode)
+        return mode:find('^[ictRss\x13]') ~= nil
+    end,
     blending = {
         threshold = 0.75,
         colorcode = '#000000',
-        hlgroup = {
-            'Normal',
-            'background',
-        },
+        hlgroup = { 'Normal', 'bg' },
     },
     warning = {
         alpha = 0.4,
         offset = 0,
         colorcode = '#FF0000',
-        hlgroup = {
-            'Error',
-            'background',
-        },
+        hlgroup = { 'Error', 'bg' },
     },
     extra = {
+        ---@type string?
         follow_tw = nil,
     },
 }
@@ -203,18 +201,6 @@ require('deadcolumn').setup(opts) -- Call the setup function
 
 ## FAQ
 
-### Why `:echo &cc` or `lua =vim.wo.cc` is empty?
-
-If you are using the default config, this is expected.
-
-The default config makes colorcolumn visible only in insert mode and replace
-mode, so it clears `cc` in normal mode and reset it to the original value when
-you enter insert mode or replace mode. As long as the colorcolumn is displayed
-correctly in insert mode and replace mode, you don't need to worry about this.
-
-If you want to see colorcolumn in normal mode, you can change the `modes`
-option, see [Options](#options).
-
 ### Why can't I see the colored column?
 
 This can have several reasons:
@@ -225,10 +211,7 @@ This can have several reasons:
     to show the colored column in normal mode.
 
 2. Please make sure you have set `colorcolumn` to a value greater than 0 in
-   your config. Notice that the output of `:echo &cc` or `lua =vim.wo.cc` may
-   be empty even if you have set `colorcolumn` to a value greater than 0. This
-   is because this plugin clears `colorcolumn` when it is not needed to conceal
-   the colored column, see point 1.
+   your config.
 
 3. If you set `colorcolumn` to a relative value (e.g. `'-10'`), make sure
    `textwidth` is set to a value greater than 0.

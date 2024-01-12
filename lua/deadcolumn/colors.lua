@@ -1,3 +1,5 @@
+local M = {}
+
 -- stylua: ignore start
 local todec = {
   ['0'] = 0,
@@ -10,6 +12,12 @@ local todec = {
   ['7'] = 7,
   ['8'] = 8,
   ['9'] = 9,
+  ['a'] = 10,
+  ['b'] = 11,
+  ['c'] = 12,
+  ['d'] = 13,
+  ['e'] = 14,
+  ['f'] = 15,
   ['A'] = 10,
   ['B'] = 11,
   ['C'] = 12,
@@ -17,79 +25,71 @@ local todec = {
   ['E'] = 14,
   ['F'] = 15,
 }
-
-local tohex = {
-  [0]  = '0',
-  [1]  = '1',
-  [2]  = '2',
-  [3]  = '3',
-  [4]  = '4',
-  [5]  = '5',
-  [6]  = '6',
-  [7]  = '7',
-  [8]  = '8',
-  [9]  = '9',
-  [10] = 'A',
-  [11] = 'B',
-  [12] = 'C',
-  [13] = 'D',
-  [14] = 'E',
-  [15] = 'F',
-}
 -- stylua: ignore end
 
----Convert an integer from hexadecimal to decimal
----@param hex string
----@return integer dec
-local function hex2dec(hex)
-  local digit = 1
-  local dec = 0
-
-  while digit <= #hex do
-    dec = dec + todec[string.sub(hex, digit, digit)] * 16 ^ (#hex - digit)
-    digit = digit + 1
+---Wrapper of nvim_get_hl(), but does not create a highlight group
+---if it doesn't exist (default to opts.create = false), and add
+---new option opts.winhl_link to get highlight attributes without
+---being affected by winhl
+---@param ns_id integer
+---@param opts table{ name: string?, id: integer?, link: boolean? }
+---@return vim.api.keyset.highlight: highlight attributes
+function M.get(ns_id, opts)
+  local no_winhl_link = opts.winhl_link == false
+  opts.winhl_link = nil
+  opts.create = opts.create or false
+  local attr = vim.api.nvim_get_hl(ns_id, opts)
+  -- We want to get true highlight attribute not affected by winhl
+  if no_winhl_link then
+    while attr.link do
+      opts.name = attr.link
+      attr = vim.api.nvim_get_hl(ns_id, opts)
+    end
   end
-
-  return dec
+  return attr
 end
 
 ---Convert an integer from decimal to hexadecimal
 ---@param int integer
+---@param n_digits integer? number of digits used for the hex code
 ---@return string hex
-local function dec2hex(int)
-  local hex = ''
+function M.dec2hex(int, n_digits)
+  return not n_digits and string.format('%x', int)
+    or string.format('%0' .. n_digits .. 'x', int)
+end
 
-  while int > 0 do
-    hex = tohex[int % 16] .. hex
-    int = math.floor(int / 16)
+---Convert an integer from hexadecimal to decimal
+---@param hex string
+---@return integer dec
+function M.hex2dec(hex)
+  local digit = 1
+  local dec = 0
+  while digit <= #hex do
+    dec = dec + todec[string.sub(hex, digit, digit)] * 16 ^ (#hex - digit)
+    digit = digit + 1
   end
-
-  return hex
+  return dec
 end
 
 ---Convert a hex color to rgb color
 ---@param hex string hex code of the color
 ---@return integer[] rgb
-local function hex2rgb(hex)
-  local red = string.sub(hex, 1, 2)
-  local green = string.sub(hex, 3, 4)
-  local blue = string.sub(hex, 5, 6)
-
+function M.hex2rgb(hex)
   return {
-    hex2dec(red),
-    hex2dec(green),
-    hex2dec(blue),
+    M.hex2dec(string.sub(hex, 1, 2)),
+    M.hex2dec(string.sub(hex, 3, 4)),
+    M.hex2dec(string.sub(hex, 5, 6)),
   }
 end
 
 ---Convert an rgb color to hex color
 ---@param rgb integer[]
 ---@return string
-local function rgb2hex(rgb)
+function M.rgb2hex(rgb)
   local hex = {
-    dec2hex(math.floor(rgb[1])),
-    dec2hex(math.floor(rgb[2])),
-    dec2hex(math.floor(rgb[3])),
+    M.dec2hex(math.floor(rgb[1])),
+    M.dec2hex(math.floor(rgb[2])),
+    M.dec2hex(math.floor(rgb[3])),
   }
   hex = {
     string.rep('0', 2 - #hex[1]) .. hex[1],
@@ -99,44 +99,30 @@ local function rgb2hex(rgb)
   return table.concat(hex, '')
 end
 
----Blend two hex colors
----@param hex1 string the first color in hdex
----@param hex2 string the second color in hdex
----@param alpha number between 0~1, weight of the first color
----@return string hex_blended blended hex color
-local function blend(hex1, hex2, alpha)
-  local rgb1 = hex2rgb(hex1:gsub('^#', '', 1))
-  local rgb2 = hex2rgb(hex2:gsub('^#', '', 1))
-
+---Blend two colors
+---@param c1 string|number|table the first color, in hex, dec, or rgb
+---@param c2 string|number|table the second color, in hex, dec, or rgb
+---@param alpha number? between 0~1, weight of the first color, default to 0.5
+---@return { hex: string, dec: integer, r: integer, g: integer, b: integer }
+function M.cblend(c1, c2, alpha)
+  alpha = alpha or 0.5
+  c1 = type(c1) == 'number' and M.dec2hex(c1, 6) or c1
+  c2 = type(c2) == 'number' and M.dec2hex(c2, 6) or c2
+  local rgb1 = type(c1) == 'string' and M.hex2rgb(c1:gsub('#', '', 1)) or c1
+  local rgb2 = type(c2) == 'string' and M.hex2rgb(c2:gsub('#', '', 1)) or c2
   local rgb_blended = {
     alpha * rgb1[1] + (1 - alpha) * rgb2[1],
     alpha * rgb1[2] + (1 - alpha) * rgb2[2],
     alpha * rgb1[3] + (1 - alpha) * rgb2[3],
   }
-
-  return '#' .. rgb2hex(rgb_blended)
+  local hex = M.rgb2hex(rgb_blended)
+  return {
+    hex = '#' .. hex,
+    dec = M.hex2dec(hex),
+    r = math.floor(rgb_blended[1]),
+    g = math.floor(rgb_blended[2]),
+    b = math.floor(rgb_blended[3]),
+  }
 end
 
----Get background color in hex
----@param hlgroup_name string
----@param field string 'foreground' or 'background'
----@param fallback string|nil fallback color in hex, default to '#000000'
----@return string hex color
-local function get_hl(hlgroup_name, field, fallback)
-  fallback = fallback or '#000000'
-  local has_hlgroup, hlgroup =
-    pcall(vim.api.nvim_get_hl_by_name, hlgroup_name, true)
-  if has_hlgroup and hlgroup[field] then
-    return '#' .. dec2hex(hlgroup[field])
-  end
-  return fallback
-end
-
-return {
-  hex2dec = hex2dec,
-  dec2hex = dec2hex,
-  hex2rgb = hex2rgb,
-  rgb2hex = rgb2hex,
-  blend = blend,
-  get_hl = get_hl,
-}
+return M

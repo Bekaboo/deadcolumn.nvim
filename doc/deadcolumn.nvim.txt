@@ -42,25 +42,23 @@ the default options, the plugin should work out of the box.
 >lua
     local opts = {
 	scope = 'line',
-	modes = { 'i', 'ic', 'ix', 'R', 'Rc', 'Rx', 'Rv', 'Rvc', 'Rvx' },
+	---@type string[]|fun(mode: string): boolean
+	modes = function(mode)
+	    return mode:find('^[ictRss\x13]') ~= nil
+	end,
 	blending = {
 	    threshold = 0.75,
 	    colorcode = '#000000',
-	    hlgroup = {
-		'Normal',
-		'background',
-	    },
+	    hlgroup = { 'Normal', 'bg' },
 	},
 	warning = {
 	    alpha = 0.4,
 	    offset = 0,
 	    colorcode = '#FF0000',
-	    hlgroup = {
-		'Error',
-		'background',
-	    },
+	    hlgroup = { 'Error', 'bg' },
 	},
 	extra = {
+	    ---@type string?
 	    follow_tw = nil,
 	},
     }

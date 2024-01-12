@@ -150,7 +150,7 @@ local function setup(opts)
       -- Fix 'E976: using Blob as a String' after select a snippet
       -- entry from LSP server using omnifunc `<C-x><C-o>`
       ---@diagnostic disable-next-line: param-type-mismatch
-      local length = vim.fn.strdisplaywidth(vim.fn.getline('.'))
+      local length = configs.opts.scope()
       local thresh = configs.opts.blending.threshold
       if 0 < thresh and thresh <= 1 then
         thresh = math.floor(thresh * cc)

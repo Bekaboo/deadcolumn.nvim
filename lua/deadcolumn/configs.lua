@@ -1,9 +1,39 @@
 local M = {}
 
+-- Functions to get the line length for different scopes
+local scope_fn = {
+  line = function()
+    return vim.fn.strdisplaywidth(vim.api.nvim_get_current_line())
+  end,
+  buffer = function()
+    local range = 1000
+    local current_linenr = vim.fn.line('.')
+    local lines = vim.api.nvim_buf_get_lines(
+      0,
+      math.max(0, current_linenr - 1 - range),
+      current_linenr + range,
+      false
+    )
+    return math.max(unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
+  end,
+  visible = function()
+    local lines = vim.api.nvim_buf_get_lines(
+      0,
+      vim.fn.line('w0') - 1,
+      vim.fn.line('w$'),
+      false
+    )
+    return math.max(unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
+  end,
+  cursor = function()
+    return vim.api.nvim_win_get_cursor(0)[2] + 1
+  end,
+}
+
 ---Default options
 ---@class ColorColumnOptions
 M.opts = {
-  scope = 'line',
+  scope = 'line', ---@type string|fun(): integer
   ---@type string[]|fun(mode: string): boolean
   modes = function(mode)
     return mode:find('^[ictRss\x13]') ~= nil
@@ -89,6 +119,8 @@ function M.set_options(user_opts)
   M.opts.warning.hlgroup[2] = M.opts.warning.hlgroup[2]
     :gsub('^foreground$', 'fg')
     :gsub('^background$', 'bg')
+  M.opts.scope = type(M.opts.scope) == 'string' and scope_fn[M.opts.scope]
+    or M.opts.scope
 end
 
 return M

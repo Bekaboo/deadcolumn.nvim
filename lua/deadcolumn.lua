@@ -169,7 +169,11 @@ local function setup(opts)
         end
         local new_cc_color = show_warning
             and colors.cblend(C_ERROR, C_NORMAL, configs.opts.warning.alpha).dec
-          or colors.cblend(C_CC, C_NORMAL, (length - thresh) / (cc - thresh)).dec
+          or colors.cblend(
+            C_CC,
+            C_NORMAL,
+            math.min(1, (length - thresh) / (cc - thresh))
+          ).dec
         if new_cc_color ~= cc_bg then
           cc_bg = new_cc_color
           vim.api.nvim_set_hl(0, '_ColorColumn', {

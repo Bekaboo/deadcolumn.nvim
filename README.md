@@ -211,7 +211,8 @@ This can have several reasons:
     to show the colored column in normal mode.
 
 2. Please make sure you have set `colorcolumn` to a value greater than 0 in
-   your config.
+   your config. Also, make sure that you have `termguicolors` set using
+   `:set termguicolors`
 
 3. If you set `colorcolumn` to a relative value (e.g. `'-10'`), make sure
    `textwidth` is set to a value greater than 0.

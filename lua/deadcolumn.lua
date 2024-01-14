@@ -187,6 +187,14 @@ local function setup(opts)
         end
       end,
     })
+    vim.api.nvim_create_autocmd('BufWinEnter', {
+      desc = 'Set colorcolumn according to textwidth.',
+      callback = function()
+        if vim.bo.textwidth ~= 0 then
+          vim.opt_local.colorcolumn = configs.opts.extra.follow_tw
+        end
+      end,
+    })
   end
 end
 

@@ -122,6 +122,7 @@ local function setup(opts)
   })
 
   local cc_bg = nil
+  local cc_link = nil
 
   vim.api.nvim_create_autocmd({
     'BufWinEnter',
@@ -161,19 +162,29 @@ local function setup(opts)
       end
 
       -- Show blended color when len < cc + offset and warning color otherwise
-      if not C_CC or not C_NORMAL or not C_ERROR then
-        update_hl_hex()
+      local show_warning = length >= cc + configs.opts.warning.offset
+      if vim.go.termguicolors then
+        if not C_CC or not C_NORMAL or not C_ERROR then
+          update_hl_hex()
+        end
+        local new_cc_color = show_warning
+            and colors.cblend(C_ERROR, C_NORMAL, configs.opts.warning.alpha).dec
+          or colors.cblend(C_CC, C_NORMAL, (length - thresh) / (cc - thresh)).dec
+        if new_cc_color ~= cc_bg then
+          cc_bg = new_cc_color
+          vim.api.nvim_set_hl(0, '_ColorColumn', {
+            bg = cc_bg,
+          })
+        end
+        cc_show(0)
+      else
+        local link = show_warning and configs.opts.warning.hlgroup[1]
+          or 'ColorColumn'
+        if cc_link ~= link then
+          cc_link = link
+          vim.api.nvim_set_hl(0, '_ColorColumn', { link = cc_link })
+        end
       end
-      local new_cc_color = length < cc + configs.opts.warning.offset
-          and colors.cblend(C_CC, C_NORMAL, (length - thresh) / (cc - thresh)).dec
-        or colors.cblend(C_ERROR, C_NORMAL, configs.opts.warning.alpha).dec
-      if new_cc_color ~= cc_bg then
-        cc_bg = new_cc_color
-        vim.api.nvim_set_hl(0, '_ColorColumn', {
-          bg = cc_bg,
-        })
-      end
-      cc_show(0)
     end,
   })
 

@@ -164,7 +164,7 @@ local function setup(opts)
       if not C_CC or not C_NORMAL or not C_ERROR then
         update_hl_hex()
       end
-      local new_cc_color = length < cc
+      local new_cc_color = length < cc + configs.opts.warning.offset
           and colors.cblend(C_CC, C_NORMAL, (length - thresh) / (cc - thresh)).dec
         or colors.cblend(C_ERROR, C_NORMAL, configs.opts.warning.alpha).dec
       if new_cc_color ~= cc_bg then

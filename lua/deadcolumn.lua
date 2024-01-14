@@ -160,7 +160,7 @@ local function setup(opts)
         return
       end
 
-      -- Show blended color when len < cc
+      -- Show blended color when len < cc + offset and warning color otherwise
       if not C_CC or not C_NORMAL or not C_ERROR then
         update_hl_hex()
       end

@@ -23,7 +23,7 @@ local scope_fn = {
       vim.fn.line('w$'),
       false
     )
-    return math.max(unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
+    return math.max(0, unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
   end,
   cursor = function()
     return vim.api.nvim_win_get_cursor(0)[2] + 1

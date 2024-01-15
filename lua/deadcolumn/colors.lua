@@ -27,17 +27,14 @@ local todec = {
 }
 -- stylua: ignore end
 
----Wrapper of nvim_get_hl(), but does not create a highlight group
----if it doesn't exist (default to opts.create = false), and add
----new option opts.winhl_link to get highlight attributes without
----being affected by winhl
+---Wrapper of nvim_get_hl(), add new option `winhl_link` to get
+---highlight attributes without being affected by winhl
 ---@param ns_id integer
 ---@param opts table{ name: string?, id: integer?, link: boolean? }
 ---@return vim.api.keyset.highlight: highlight attributes
 function M.get(ns_id, opts)
   local no_winhl_link = opts.winhl_link == false
   opts.winhl_link = nil
-  opts.create = opts.create or false
   local attr = vim.api.nvim_get_hl(ns_id, opts)
   -- We want to get true highlight attribute not affected by winhl
   if no_winhl_link then

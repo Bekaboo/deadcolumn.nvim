@@ -14,7 +14,7 @@ local scope_fn = {
       current_linenr + range,
       false
     )
-    return math.max(unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
+    return math.max(0, unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
   end,
   visible = function()
     local lines = vim.api.nvim_buf_get_lines(

@@ -2,6 +2,8 @@
     deadcolumn.nvim
 </h1>
 
+[![luarocks](https://img.shields.io/luarocks/v/bekaboo/deadcolumn.nvim?logo=lua&color=blue)](https://luarocks.org/modules/bekaboo/deadcolumn.nvim)
+
 <p align='center'>
     <b>Don't across that column in Neovim</b>
 </p>

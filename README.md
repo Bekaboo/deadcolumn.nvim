@@ -74,6 +74,12 @@ keep their code aligned within a specific column range.
     end)
     ```
 
+- Using [rocks.nvim](https://github.com/nvim-neorocks/rocks.nvim)
+
+    ```vim
+    :Rocks install deadcolumn.nvim
+    ```
+
 ## Options
 
 :warning: **Notice**

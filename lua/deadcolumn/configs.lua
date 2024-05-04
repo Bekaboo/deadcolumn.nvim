@@ -1,9 +1,19 @@
 local M = {}
 
+local function displaywidth(line)
+  if line:find('%c') then
+    -- This is a workaround for the error "E976: using Blob as a String" on
+    -- strdisplaywidth. Lines containing control characters are expected to be
+    -- only composed of ASCII.
+    return #line
+  end
+  return vim.fn.strdisplaywidth(line)
+end
+
 -- Functions to get the line length for different scopes
 local scope_fn = {
   line = function()
-    return vim.fn.strdisplaywidth(vim.api.nvim_get_current_line())
+    return displaywidth(vim.api.nvim_get_current_line())
   end,
   buffer = function()
     local range = 1000
@@ -14,7 +24,7 @@ local scope_fn = {
       current_linenr + range,
       false
     )
-    return math.max(0, unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
+    return math.max(0, unpack(vim.tbl_map(displaywidth, lines)))
   end,
   visible = function()
     local lines = vim.api.nvim_buf_get_lines(
@@ -23,7 +33,7 @@ local scope_fn = {
       vim.fn.line('w$'),
       false
     )
-    return math.max(0, unpack(vim.tbl_map(vim.fn.strdisplaywidth, lines)))
+    return math.max(0, unpack(vim.tbl_map(displaywidth, lines)))
   end,
   cursor = function()
     return vim.api.nvim_win_get_cursor(0)[2] + 1

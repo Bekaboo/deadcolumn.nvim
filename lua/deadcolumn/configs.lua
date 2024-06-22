@@ -1,7 +1,7 @@
 local M = {}
 
 local function displaywidth(line)
-  if line:find('%c') then
+  if vim.fn.type(line) == vim.v.t_blob then
     -- This is a workaround for the error "E976: using Blob as a String" on
     -- strdisplaywidth. Lines containing control characters are expected to be
     -- only composed of ASCII.

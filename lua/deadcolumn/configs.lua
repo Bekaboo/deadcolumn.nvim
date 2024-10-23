@@ -57,11 +57,12 @@ M.opts = {
 
 function M.set_options(user_opts)
   M.opts = vim.tbl_deep_extend('force', M.opts, user_opts or {})
+  local islist = vim.islist or vim.tbl_islist
   -- Sanity check
   assert(
     type(M.opts.modes) == 'function'
       or type(M.opts.modes) == 'table'
-        and vim.tbl_islist(M.opts.modes --[[@as table]]),
+        and islist(M.opts.modes --[[@as table]]),
     'modes must be a function or a list of strings'
   )
   assert(

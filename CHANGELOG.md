@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/Bekaboo/deadcolumn.nvim/compare/v1.0.0...v1.0.1) (2024-10-25)
+
+
+### Bug Fixes
+
+* **configs:** error calculating length of blobs ([#23](https://github.com/Bekaboo/deadcolumn.nvim/issues/23)) ([42466f3](https://github.com/Bekaboo/deadcolumn.nvim/commit/42466f358e962bccd31647de92ea3053cd950db7))
+* **configs:** migrate to vim.islist as vim.tbl_islist is deprecated ([#27](https://github.com/Bekaboo/deadcolumn.nvim/issues/27)) ([9b7e849](https://github.com/Bekaboo/deadcolumn.nvim/commit/9b7e849e8543690aaf89ee595f6b13fa456690bd))
+
 ## [1.0.0](https://github.com/Bekaboo/deadcolumn.nvim/compare/v0.0.0...v1.0.0) (2024-02-18)
 
 

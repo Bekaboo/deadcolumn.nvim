@@ -3,7 +3,7 @@ local M = {}
 -- Functions to get the line length for different scopes
 local scope_fn = {
   line = function()
-    return vim.fn.strdisplaywidth(vim.api.nvim_get_current_line())
+    return vim.fn.strdisplaywidth(vim.fn.getline('.'))
   end,
   buffer = function()
     local range = 1000

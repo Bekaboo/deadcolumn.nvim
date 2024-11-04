@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/Bekaboo/deadcolumn.nvim/compare/v1.0.1...v1.0.2) (2024-11-04)
+
+
+### Bug Fixes
+
+* calculate blob line without strdisplaywidth ([#29](https://github.com/Bekaboo/deadcolumn.nvim/issues/29)) ([897c905](https://github.com/Bekaboo/deadcolumn.nvim/commit/897c905aef1a268ce4cc507d5cce048ed808fa7a))
+
 ## [1.0.1](https://github.com/Bekaboo/deadcolumn.nvim/compare/v1.0.0...v1.0.1) (2024-10-25)
 
 

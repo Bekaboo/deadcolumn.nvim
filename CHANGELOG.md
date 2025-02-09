@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.0.0](https://github.com/Bekaboo/deadcolumn.nvim/compare/v1.0.2...v2.0.0) (2025-02-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **configs:** don't enable in command and terminal mode
+* **configs:** decrease threshold to 0.5
+
+### Features
+
+* **configs:** allow boolean as `opts.modes` to always enable/disable ([0c14019](https://github.com/Bekaboo/deadcolumn.nvim/commit/0c14019a99656f7ffc7048fdf4d2f663bf5cdcb5))
+
+
+### Code Refactoring
+
+* **configs:** decrease threshold to 0.5 ([b9040e7](https://github.com/Bekaboo/deadcolumn.nvim/commit/b9040e7822ae6a5a5bac5b297371d3c9b5014ae1))
+* **configs:** don't enable in command and terminal mode ([3405445](https://github.com/Bekaboo/deadcolumn.nvim/commit/3405445d751c6415742d79bd320b501292e5d65c))
+
 ## [1.0.2](https://github.com/Bekaboo/deadcolumn.nvim/compare/v1.0.1...v1.0.2) (2024-11-04)
 
 

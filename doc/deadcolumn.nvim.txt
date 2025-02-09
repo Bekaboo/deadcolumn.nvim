@@ -44,10 +44,10 @@ the default options, the plugin should work out of the box.
 	scope = 'line', ---@type string|fun(): integer
 	---@type string[]|fun(mode: string): boolean
 	modes = function(mode)
-	    return mode:find('^[ictRss\x13]') ~= nil
+	    return mode:find('^[iRss\x13]') ~= nil
 	end,
 	blending = {
-	    threshold = 0.75,
+	    threshold = 0.5,
 	    colorcode = '#000000',
 	    hlgroup = { 'Normal', 'bg' },
 	},
@@ -107,7 +107,9 @@ deadcolumn.setup({*opts})                         *deadcolumn.options.setup()*
 		scope = function()
 		    local max = 0
 		    for i = -50, 50 do
-			local len = vim.fn.strdisplaywidth(vim.fn.getline(vim.fn.line('.') + i))
+			local len = vim.fn.strdisplaywidth(
+			    vim.fn.getline(vim.fn.line('.') + i)
+			)
 			if len > max then
 			    max = len
 			end
@@ -116,7 +118,49 @@ deadcolumn.setup({*opts})                         *deadcolumn.options.setup()*
 		end
 	    })
 <
+	    Another example: >lua
 
+	    require('deadcolumn').setup({
+	      -- Dynamically adjusts the colorcolumn behavior based on editing
+	      -- mode:
+	      -- 1. In insert/replace/selection mode: update the color
+	      --    gradually based on current line length
+	      -- 2. In other modes: update the color based on longest visible
+	      --    line, if there's any line that exceeds the colorcolumn
+	      --    limit, show the colorcolumn with warning color, else
+	      --    conceal the colorcolumn entirely
+	      scope = function()
+		if vim.fn.mode():find('^[iRss\x13]') ~= nil then
+		  return vim.fn.strdisplaywidth(vim.fn.getline('.'))
+		end
+
+		-- Don't show in read-only buffers
+		if not vim.bo.ma or vim.bo.ro then
+		  return 0
+		end
+
+		-- Find maximum length within visible range
+		local max_len = math.max(
+		  unpack(
+		    vim.tbl_map(
+		      vim.fn.strdisplaywidth,
+		      vim.api.nvim_buf_get_lines(
+			0,
+			vim.fn.line('w0') - 1,
+			vim.fn.line('w$'),
+			false
+		      )
+		    )
+		  )
+		)
+
+		if max_len >= cc_resolve(vim.wo.cc) then
+		  return max_len
+		end
+		return 0
+	      end,
+	    })
+<
                                                 *deadcolumn.options.ops.modes*
     `modes` table|function(string)->boolean
 	(default: { "i", "ic", "ix", "R", "Rc", "Rx", "Rv", "Rvc", "Rvx" })

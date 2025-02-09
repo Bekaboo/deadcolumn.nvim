@@ -81,16 +81,75 @@ local function cc_show(winid)
 end
 
 ---Check if the current mode is in the correct mode
----@param mode string? default to current mode
 ---@return boolean
-local function is_in_correct_mode(mode)
-  mode = mode or vim.fn.mode()
+local function check_mode()
+  if type(configs.opts.modes) == 'boolean' then
+    return configs.opts.modes ---@type boolean
+  end
   if type(configs.opts.modes) == 'function' then
-    return configs.opts.modes(mode)
+    return configs.opts.modes(vim.fn.mode())
   end
   return type(configs.opts.modes) == 'table'
-      and vim.tbl_contains(configs.opts.modes --[=[@as string[]]=], mode)
+      and vim.tbl_contains(
+        configs.opts.modes --[=[@as string[]]=],
+        vim.fn.mode()
+      )
     or false
+end
+
+local cc_bg = nil
+local cc_link = nil
+
+---Update colorcolumn highlight or conceal it
+---@param winid integer? handler, default 0
+---@return nil
+local function cc_update(winid)
+  winid = winid or 0
+  local cc = cc_resolve(vim.wo[winid].cc)
+  if not check_mode() or not cc then
+    cc_conceal(winid)
+    return
+  end
+
+  -- Fix 'E976: using Blob as a String' after select a snippet
+  -- entry from LSP server using omnifunc `<C-x><C-o>`
+  ---@diagnostic disable-next-line: param-type-mismatch
+  local length = configs.opts.scope()
+  local thresh = configs.opts.blending.threshold
+  if 0 < thresh and thresh <= 1 then
+    thresh = math.floor(thresh * cc)
+  end
+  if length < thresh then
+    cc_conceal(winid)
+    return
+  end
+
+  -- Show blended color when len < cc + offset and warning color otherwise
+  local show_warning = length >= cc + configs.opts.warning.offset
+  if vim.go.termguicolors then
+    if not C_CC or not C_NORMAL or not C_ERROR then
+      update_hl_hex()
+    end
+    local new_cc_color = show_warning
+        and colors.cblend(C_ERROR, C_NORMAL, configs.opts.warning.alpha).dec
+      or colors.cblend(
+        C_CC,
+        C_NORMAL,
+        math.min(1, (length - thresh) / (cc - thresh))
+      ).dec
+    if new_cc_color ~= cc_bg then
+      cc_bg = new_cc_color
+      vim.api.nvim_set_hl(0, '_ColorColumn', { bg = cc_bg })
+    end
+  else
+    local link = show_warning and configs.opts.warning.hlgroup[1]
+      or 'ColorColumn'
+    if cc_link ~= link then
+      cc_link = link
+      vim.api.nvim_set_hl(0, '_ColorColumn', { link = cc_link })
+    end
+  end
+  cc_show(winid)
 end
 
 ---Setup function
@@ -109,9 +168,7 @@ local function setup(opts)
     desc = 'Conceal colorcolumn in other windows.',
     group = id,
     callback = function()
-      if vim.fn.win_gettype() == '' then
-        cc_conceal(0)
-      end
+      cc_conceal()
     end,
   })
 
@@ -121,11 +178,8 @@ local function setup(opts)
     callback = update_hl_hex,
   })
 
-  local cc_bg = nil
-  local cc_link = nil
-
   vim.api.nvim_create_autocmd({
-    'BufWinEnter',
+    'BufEnter',
     'ColorScheme',
     'CursorMoved',
     'CursorMovedI',
@@ -135,60 +189,19 @@ local function setup(opts)
     'WinEnter',
     'WinScrolled',
   }, {
-    desc = 'Change colorcolumn color.',
+    desc = 'Update colorcolumn color.',
     group = id,
     callback = function()
-      local cc = cc_resolve(vim.wo.cc)
-      if
-        not is_in_correct_mode(vim.fn.mode())
-        or vim.fn.win_gettype() ~= ''
-        or not cc
-      then
-        cc_conceal(0)
-        return
-      end
+      cc_update()
+    end,
+  })
 
-      -- Fix 'E976: using Blob as a String' after select a snippet
-      -- entry from LSP server using omnifunc `<C-x><C-o>`
-      ---@diagnostic disable-next-line: param-type-mismatch
-      local length = configs.opts.scope()
-      local thresh = configs.opts.blending.threshold
-      if 0 < thresh and thresh <= 1 then
-        thresh = math.floor(thresh * cc)
-      end
-      if length < thresh then
-        cc_conceal(0)
-        return
-      end
-
-      -- Show blended color when len < cc + offset and warning color otherwise
-      local show_warning = length >= cc + configs.opts.warning.offset
-      if vim.go.termguicolors then
-        if not C_CC or not C_NORMAL or not C_ERROR then
-          update_hl_hex()
-        end
-        local new_cc_color = show_warning
-            and colors.cblend(C_ERROR, C_NORMAL, configs.opts.warning.alpha).dec
-          or colors.cblend(
-            C_CC,
-            C_NORMAL,
-            math.min(1, (length - thresh) / (cc - thresh))
-          ).dec
-        if new_cc_color ~= cc_bg then
-          cc_bg = new_cc_color
-          vim.api.nvim_set_hl(0, '_ColorColumn', {
-            bg = cc_bg,
-          })
-        end
-        cc_show(0)
-      else
-        local link = show_warning and configs.opts.warning.hlgroup[1]
-          or 'ColorColumn'
-        if cc_link ~= link then
-          cc_link = link
-          vim.api.nvim_set_hl(0, '_ColorColumn', { link = cc_link })
-        end
-      end
+  vim.api.nvim_create_autocmd('OptionSet', {
+    desc = 'Update colorcolumn color.',
+    pattern = { 'colorcolumn', 'textwidth' },
+    group = id,
+    callback = function()
+      cc_update()
     end,
   })
 
@@ -202,7 +215,7 @@ local function setup(opts)
         end
       end,
     })
-    vim.api.nvim_create_autocmd('BufWinEnter', {
+    vim.api.nvim_create_autocmd('BufEnter', {
       desc = 'Set colorcolumn according to textwidth.',
       callback = function()
         if vim.bo.textwidth ~= 0 then

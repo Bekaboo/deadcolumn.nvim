@@ -44,7 +44,7 @@ local scope_fn = {
 ---@class ColorColumnOptions
 M.opts = {
   scope = 'line', ---@type string|fun(): integer
-  ---@type string[]|fun(mode: string): boolean
+  ---@type string[]|boolean|fun(mode: string): boolean
   modes = function(mode)
     return mode:find('^[ictRss\x13]') ~= nil
   end,
@@ -70,7 +70,8 @@ function M.set_options(user_opts)
   local islist = vim.islist or vim.tbl_islist
   -- Sanity check
   assert(
-    type(M.opts.modes) == 'function'
+    type(M.opts.modes) == 'boolean'
+      or type(M.opts.modes) == 'function'
       or type(M.opts.modes) == 'table'
         and islist(M.opts.modes --[[@as table]]),
     'modes must be a function or a list of strings'

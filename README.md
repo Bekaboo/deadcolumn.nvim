@@ -94,7 +94,7 @@ function to override the default options.
 ```lua
 local opts = {
     scope = 'line', ---@type string|fun(): integer
-    ---@type string[]|fun(mode: string): boolean
+    ---@type string[]|boolean|fun(mode: string): boolean
     modes = function(mode)
         return mode:find('^[ictRss\x13]') ~= nil
     end,

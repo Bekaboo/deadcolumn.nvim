@@ -49,7 +49,7 @@ M.opts = {
     return mode:find('^[ictRss\x13]') ~= nil
   end,
   blending = {
-    threshold = 0.75,
+    threshold = 0.5,
     colorcode = '#000000',
     hlgroup = { 'Normal', 'bg' },
   },

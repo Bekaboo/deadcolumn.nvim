@@ -157,13 +157,33 @@ end
 local function setup(opts)
   configs.set_options(opts)
 
-  ---Conceal colorcolumn in each window
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    cc_conceal(win)
-  end
-
   ---Create autocmds for concealing / showing colorcolumn
   local id = vim.api.nvim_create_augroup('deadcolumn', {})
+
+  ---Conceal colorcolumn in each window
+  local function init_wins()
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      cc_conceal(win)
+    end
+  end
+
+  -- If nvim is started with `nvim -O file1 file2`, window of the second file
+  -- will not be initialized because the window is not yet created when the
+  -- plugin loads. So check if nvim has finished startup phase, and if no,
+  -- defer setting up windows until the UI is fully rendered.
+  if vim.v.vim_did_enter == 1 then
+    init_wins()
+  else
+    vim.api.nvim_create_autocmd('UIEnter', {
+      desc = 'Intialize colorcolumn winhl in each window.',
+      group = id,
+      callback = function()
+        init_wins()
+      end,
+    })
+  end
+
+
 
   vim.api.nvim_create_autocmd('WinLeave', {
     desc = 'Conceal colorcolumn in other windows.',
